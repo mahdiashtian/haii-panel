@@ -6,6 +6,14 @@ __pycache__/
 # C extensions
 *.so
 
+# .Ideas
+.idea/
+
+# Migration File
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+
 # Distribution / packaging
 .Python
 build/
