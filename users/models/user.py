@@ -83,11 +83,11 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin, ID):
 
 
 class User(AbstractUser):
-    # profile :Inversely related to 'User'
+    # profile :Inversely related to 'User' from 'Profile'
 
     validity = models.DecimalField(decimal_places=2,
-                                      max_digits=11,
-        help_text="فیلد اعتبار کاربر در پنل")
+                                   max_digits=11,
+                                   verbose_name="اعتبار")
 
     iranian = IranianManager()
     foreigner = ForeignerManager()

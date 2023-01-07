@@ -15,25 +15,23 @@ class ID(models.Model):
 
 
 class Child(ID):
-    # profile :Inversely related to 'Child'
-    image = models.ImageField(upload_to=upload_image_path, help_text='تصویر کودک')
+    # profile :Inversely related to 'Child' from 'Profile'
+
+    image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر شناسنامه')
 
     class Meta:
         app_label = 'users'
 
 
 class Profile(ID):
-    # foreigner :Inversely related to 'Profile'
-
-    # iranian :Inversely related to 'Profile'
-
-    # Education :Inversely related to 'Profile'
-
-    # Skill :Inversely related to 'Profile'
-
-    # Experience :Inversely related to 'Profile'
-
-    image = models.ImageField(upload_to=upload_image_path, help_text='تصویر پروفایل')
+    # ceo_team :Inversely related to 'Profile' from 'Team'
+    # managers_team :Inversely related to 'Profile' from 'Team'
+    # education :Inversely related to 'Profile' from 'Education'
+    # skill :Inversely related to 'Profile' from 'Skill'
+    # experience :Inversely related to 'Profile' from 'Experience'
+    # team_user :Inversely related to 'Profile' from 'TeamUser'
+    # iranian :Inversely related to 'Profile' from 'ProfileIranian'
+    # foreign :Inversely related to 'Profile' from 'ProfileForeign'
 
     class GenderChoices(models.TextChoices):
         MAN = 'M', ('مرد')
@@ -48,18 +46,13 @@ class Profile(ID):
         pending = 'P', ('در انتظار تایید')
         rejected = 'R', ('رد شده')
 
-    role = models.CharField(max_length=256, help_text='نقش کاربر در سایت')
-
+    role = models.CharField(max_length=256, verbose_name='نقش کاربر')
+    image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر پروفایل')
     is_confirmed = models.CharField(max_length=1, choices=Condition.choices, default=Condition.pending,
-                                    help_text="تایید حساب کاربری")
-
-    country = models.CharField(max_length=4, choices=get_country_list(), help_text="کشور")
-
-    date_of_birth = models.DateField(help_text="تاریخ تولد")
-
-    child = models.ManyToManyField(Child, related_name='profile', blank=True,
-                                   help_text="فیلد متصل کننده بچه پدر یا مادر")
-
+                                    verbose_name="تایید/عدم تایید حساب کاربری")
+    country = models.CharField(max_length=4, choices=get_country_list(), verbose_name="کشور")
+    date_of_birth = models.DateField(verbose_name="تاریخ تولد")
+    child = models.ManyToManyField(Child, related_name='profile', blank=True, verbose_name='کودکان')
     phone_number = models.CharField(max_length=13,
                                     validators=[
                                         RegexValidator(
@@ -67,27 +60,17 @@ class Profile(ID):
                                             message='شماره تلفن صحیح نیست',
                                             code='invalid_phone_number')
                                     ],
-                                    help_text="شماره تلفن"
+                                    verbose_name="شماره تلفن"
                                     )
-
-    phone_verified = models.BooleanField(default=False, help_text="تایید شماره تلفن")
-
-    state = models.CharField(max_length=50, help_text="استان")
-
-    city = models.CharField(max_length=50, help_text='نام شهر')
-
-    address = models.CharField(max_length=150, help_text="آدرس")
-
-    gender = models.CharField(max_length=25, choices=GenderChoices.choices, help_text='جنسیت')
-
-    marital_status = models.CharField(max_length=25, choices=MaritalStatusChoices.choices, help_text='وضعیت تاهل')
-
-    first_name = models.CharField(_("first name"), max_length=150, help_text='نام')
-
-    last_name = models.CharField(_("last name"), max_length=150, help_text='نام خانوادگی')
-
-    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='profile',
-                                help_text="فیلد متصل کننده پروفایل به کاربر خاص")
+    phone_verified = models.BooleanField(default=False, verbose_name="تایید/عدم تایید شماره تلفن")
+    state = models.CharField(max_length=50, verbose_name="استان")
+    city = models.CharField(max_length=50, verbose_name='نام شهر')
+    address = models.CharField(max_length=150, verbose_name="آدرس")
+    gender = models.CharField(max_length=25, choices=GenderChoices.choices, verbose_name='جنسیت')
+    marital_status = models.CharField(max_length=25, choices=MaritalStatusChoices.choices, verbose_name='وضعیت تاهل')
+    first_name = models.CharField(_("first name"), max_length=150, verbose_name='نام')
+    last_name = models.CharField(_("last name"), max_length=150, verbose_name='نام خانوادگی')
+    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='profile', verbose_name='کاربر')
 
     def get_full_name(self):
         full_name = "%s %s" % (self.first_name, self.last_name)
@@ -104,21 +87,21 @@ class Profile(ID):
 
 
 class ProfileIranian(ID):
-    national_code = models.CharField(max_length=10, help_text="کد ملی")
-    national_card_image = models.ImageField(upload_to=upload_image_path, help_text="تصویر کارت ملی")
-    birth_certificate_image = models.ImageField(upload_to=upload_image_path, help_text="تصویر شناسنامه")
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='iranian',
-                                   help_text="فیلد متصل کننده پروفایل ایرانی به پروفایل")
+    national_code = models.CharField(max_length=10, verbose_name="کد ملی")
+    national_card_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر کارت ملی")
+    birth_certificate_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر شناسنامه")
+    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='iranian',
+                                   verbose_name='پروفایل')
 
     class Meta:
         app_label = 'users'
 
 
 class ProfileForeigner(ID):
-    passport_image = models.ImageField(upload_to=upload_image_path, help_text="تصویر پاسپورت")
-    exclusive_code = models.CharField(max_length=12, help_text='کد اختصاصی')
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, related_name='foreigner',
-                                   help_text="فیلد متصل کننده پروفایل خارجی به پروفایل")
+    passport_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر پاسپورت")
+    exclusive_code = models.CharField(max_length=12, verbose_name='کد اختصاصی')
+    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='foreigner',
+                                   verbose_name='پروفایل', )
 
     class Meta:
         app_label = 'users'
