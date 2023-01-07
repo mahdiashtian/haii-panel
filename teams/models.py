@@ -1,5 +1,6 @@
 import uuid
 
+from django.core.validators import RegexValidator
 from django.db import models
 
 from utils.utils import upload_image_path
@@ -15,6 +16,7 @@ class ID(models.Model):
 class Team(ID):
     # activity :Inversely related to 'Team' from 'Activity'
     # team_user :Inversely related to 'Team' from 'TeamUser'
+    # membership_request :Inversely related to 'Team' from 'MembershipRequest'
 
     name = models.CharField(max_length=256, verbose_name="نام تیم")
     description = models.TextField(verbose_name="توضیحات")
@@ -47,6 +49,44 @@ class Activity(ID):
         if self.parent:
             self.team = None
         super().save(*args, **kwargs)
+
+    class Meta:
+        app_label = 'teams'
+
+
+class MembershipRequest(ID):
+    class GenderChoices(models.TextChoices):
+        MAN = 'M', ('مرد')
+        FEMALE = 'F', ('زن')
+
+    class MembershipChoices(models.TextChoices):
+        PERMANENT = 'PE', ('دائمی')
+        FREELANCER = 'FR', ('فریلنسر')
+        LEARNER = 'LE', ('کارآموز')
+
+    full_name = models.CharField(max_length=256, verbose_name='نام و نام خانوادگی')
+    phone_number = models.CharField(max_length=13,
+                                    validators=[
+                                        RegexValidator(
+                                            regex='^(0)9(0[1-5]|[1 3]\d|2[0-2]|98)\d{7}$',
+                                            message='شماره تلفن صحیح نیست',
+                                            code='invalid_phone_number')
+                                    ],
+                                    verbose_name="شماره تلفن"
+                                    )
+    experience = models.PositiveSmallIntegerField(verbose_name='سابقه کاری')
+    age = models.PositiveSmallIntegerField(verbose_name='سن')
+    gender = models.CharField(max_length=1, choices=GenderChoices.choices, verbose_name='جنسیت')
+    city = models.CharField(max_length=256, verbose_name='شهر')
+    membership_type = models.CharField(max_length=2, choices=MembershipChoices.choices, verbose_name='نوع عضویت')
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name='membership_request',
+                             verbose_name='تیم مربوطه')
+    cv = models.FileField(upload_to=upload_image_path, verbose_name='رزومه')
+    status = models.BooleanField(default=False, verbose_name='رد/تایید شده')
+    description = models.TextField(verbose_name='توضیحات')
+
+    def __str__(self):
+        return self.full_name
 
     class Meta:
         app_label = 'teams'

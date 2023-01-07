@@ -32,7 +32,7 @@ class Education(BaseInformationModel):
     image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر لوگو موسسه')
     start = models.DateField(verbose_name='تاریخ شروع')
     stop = models.DateField(verbose_name='تاریخ پایان')
-    is_student = models.BooleanField(verbose_name='دانشجویی')
+    is_student = models.BooleanField(verbose_name='تحصیل/عدم تحصیل')
 
     class Meta:
         app_label = 'users'
