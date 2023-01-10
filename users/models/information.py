@@ -67,3 +67,23 @@ class TeamUser(models.Model):
 
     class Meta:
         app_label = 'users'
+
+
+class TransactionHistory(models.Model):
+    class PaymentChoices(models.TextChoices):
+        DFC = 'DFC', ('کسر از اعتبار')
+        PG = 'PG', ('درگاه پراخت')
+        ETQ = 'ETQ', ('هربار سوال شود')
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    transaction_type = models.CharField(max_length=3, choices=PaymentChoices.choices, verbose_name='نوع تراکنش')
+    price = models.IntegerField(verbose_name='مبلغ')
+    date = models.DateField(auto_now_add=True, verbose_name='تاریخ')
+    status = models.BooleanField(verbose_name='وضعیت')
+    document = models.FileField(upload_to=upload_image_path, verbose_name='فایل تراکنش')
+    description = models.TextField(verbose_name='توضیحات')
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='transaction_history',
+                             verbose_name='کاربر')
+
+    class Meta:
+        app_label = 'users'

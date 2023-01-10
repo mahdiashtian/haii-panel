@@ -85,6 +85,7 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin, ID):
 class User(AbstractUser):
     # profile :Inversely related to 'User' from 'Profile'
     # payment_food :Inversely related to 'User' from 'PaymentFood'
+    # transaction_history :Inversely related to 'User' from 'TransactionHistory'
 
     validity = models.DecimalField(decimal_places=2,
                                    max_digits=11,
