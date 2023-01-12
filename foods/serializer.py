@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from foods.models import WeeklyMeal, FoodAndDesire
+from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood
 
 
 class WeeklyMealSerializer(serializers.ModelSerializer):
@@ -14,3 +14,8 @@ class FoodAndDesireSerializer(serializers.ModelSerializer):
         model = FoodAndDesire
         fields = '__all__'
 
+
+class PaymentFoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentFood
+        fields = '__all__'
