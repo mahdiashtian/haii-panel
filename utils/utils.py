@@ -1,9 +1,6 @@
 import os
 
-from django.conf import settings
 from django.utils.crypto import get_random_string
-
-URL = settings.URL_MEDIA
 
 
 def get_file_name(file_name):
@@ -32,7 +29,7 @@ def upload_image_path(instance=None, filename=None):
 
     model_name = instance.__class__.__name__.lower()
     name, ext = get_file_name(filename)
-    return f"{URL}{model_name}/{get_random_string(10)}/{name}{ext}"
+    return f"{model_name}/{get_random_string(10)}/{name}{ext}"
 
 
 def get_country_list():
