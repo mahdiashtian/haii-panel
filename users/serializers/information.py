@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from users.models import Skill, Education, Experience, TeamUser
+from users.models import Skill, Education, Experience, TeamUser, TransactionHistory
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -24,4 +24,10 @@ class ExperienceSerializer(serializers.ModelSerializer):
 class TeamUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeamUser
+        fields = '__all__'
+
+
+class TransactionHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionHistory
         fields = '__all__'
