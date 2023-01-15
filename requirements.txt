@@ -3,3 +3,4 @@ djangorestframework==3.14.0
 markdown==3.4.1
 django-filter==22.1
 psycopg==3.1.7
+pillow==9.4.0
