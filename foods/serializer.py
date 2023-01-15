@@ -16,6 +16,17 @@ class FoodAndDesireSerializer(serializers.ModelSerializer):
 
 
 class PaymentFoodSerializer(serializers.ModelSerializer):
+    def get_bills(self, obj):
+        debt = obj.user.credit
+        return {
+            "debt": abs(debt) if debt < 0 else 0,
+            "credit": debt if debt > 0 else 0,
+        }
+
+    bills = serializers.SerializerMethodField()
+    weekly_meal_payment = WeeklyMealSerializer(many=True, read_only=True)
+
     class Meta:
         model = PaymentFood
         fields = '__all__'
+        read_only_fields = ('user',)
