@@ -89,7 +89,7 @@ class User(AbstractUser):
 
     validity = models.DecimalField(decimal_places=2,
                                    max_digits=11,
-                                   verbose_name="اعتبار")
+                                   verbose_name="اعتبار", default=0)
     iranian = IranianManager()
     foreigner = ForeignerManager()
 

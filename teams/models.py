@@ -23,7 +23,7 @@ class Team(ID):
     name = models.CharField(max_length=256, verbose_name="نام تیم")
     description = models.TextField(verbose_name="توضیحات")
     managers = models.ManyToManyField("users.Profile", related_name='managers_team', verbose_name="مدیران تیم")
-    ceo = models.ForeignKey("users.Profile", on_delete=models.SET_NULL, related_name='ceo_team',
+    ceo = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='ceo_team',
                             verbose_name="مدیر عامل")
 
     def __str__(self):

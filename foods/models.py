@@ -57,7 +57,7 @@ class WeeklyMeal(ID):
                              related_name='weekly_meal_food')
     desire = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='پیش غذا',
                                related_name='weekly_meal_desire')
-    meal = models.CharField(max_length=8, choices=ChoiceMeal.choices, verbose_name='نوع وعده')
+    meal = models.CharField(max_length=9, choices=ChoiceMeal.choices, verbose_name='نوع وعده')
     payment = models.ForeignKey('foods.PaymentFood', on_delete=models.CASCADE, verbose_name='پرداخت',
                                 related_name='weekly_meal_payment')
 

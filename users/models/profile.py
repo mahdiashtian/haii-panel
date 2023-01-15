@@ -68,8 +68,8 @@ class Profile(ID):
     address = models.CharField(max_length=150, verbose_name="آدرس")
     gender = models.CharField(max_length=25, choices=GenderChoices.choices, verbose_name='جنسیت')
     marital_status = models.CharField(max_length=25, choices=MaritalStatusChoices.choices, verbose_name='وضعیت تاهل')
-    first_name = models.CharField(_("first name"), max_length=150, verbose_name='نام')
-    last_name = models.CharField(_("last name"), max_length=150, verbose_name='نام خانوادگی')
+    first_name = models.CharField(_("first name"), max_length=150)
+    last_name = models.CharField(_("last name"), max_length=150)
     user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='profile', verbose_name='کاربر')
 
     def get_full_name(self):
