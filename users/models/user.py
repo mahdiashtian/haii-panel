@@ -87,7 +87,7 @@ class User(AbstractUser):
     # payment_food :Inversely related to 'User' from 'PaymentFood'
     # transaction_history :Inversely related to 'User' from 'TransactionHistory'
 
-    validity = models.DecimalField(decimal_places=2,
+    credit = models.DecimalField(decimal_places=2,
                                    max_digits=11,
                                    verbose_name="اعتبار", default=0)
     iranian = IranianManager()
