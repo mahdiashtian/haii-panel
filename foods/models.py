@@ -60,6 +60,17 @@ class WeeklyMeal(ID):
     meal = models.CharField(max_length=9, choices=ChoiceMeal.choices, verbose_name='نوع وعده')
     payment = models.ForeignKey('foods.PaymentFood', on_delete=models.CASCADE, verbose_name='پرداخت',
                                 related_name='weekly_meal_payment')
+    price = models.PositiveBigIntegerField(verbose_name='قیمت', default=0)
+
+    def save(
+            self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        if self.food:
+            self.price += self.food.price
+        if self.desire:
+            self.price += self.desire.price
+
+        super().save()
 
     class Meta:
         app_label = 'foods'
