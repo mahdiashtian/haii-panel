@@ -1,19 +1,30 @@
-from rest_framework import generics, mixins
-from rest_framework.viewsets import GenericViewSet
+from rest_framework import generics, mixins, viewsets
 
-from foods.models import PaymentFood, FoodAndDesire
-from foods.serializer import PaymentFoodSerializer, FoodAndDesireSerializer
-from main.permissions import IsOwner, IsSuperUser
+from foods.models import PaymentFood, FoodAndDesire, WeeklyMeal, WeeklyMealUser
+from foods.serializer import PaymentFoodSerializer, FoodAndDesireSerializer, WeeklyMealSerializer, \
+    WeeklyMealUserSerializer
+from main.permissions import IsOwner, IsSuperUser, IsSuperUserOrReadOnly
 
 
 class FoodAndDesireViewSet(mixins.CreateModelMixin,
                            mixins.RetrieveModelMixin,
                            mixins.UpdateModelMixin,
                            mixins.ListModelMixin,
-                           GenericViewSet):
+                           viewsets.GenericViewSet):
     queryset = FoodAndDesire.objects.all()
     serializer_class = FoodAndDesireSerializer
     permission_classes = [IsSuperUser]
+
+
+class WeeklyMealViewSet(viewsets.ModelViewSet):
+    queryset = WeeklyMeal.objects.all()
+    serializer_class = WeeklyMealSerializer
+    permission_classes = [IsSuperUserOrReadOnly]
+
+
+class WeeklyMealUserViewSet(viewsets.ModelViewSet):
+    queryset = WeeklyMealUser.objects.all()
+    serializer_class = WeeklyMealUserSerializer
 
 
 class PaymentFoodRUAV(generics.RetrieveUpdateAPIView):
