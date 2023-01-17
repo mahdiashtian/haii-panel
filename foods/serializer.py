@@ -1,11 +1,18 @@
 from rest_framework import serializers
 
-from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood
+from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood, WeeklyMealUser
 
 
 class WeeklyMealSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeeklyMeal
+        fields = '__all__'
+        read_only_fields = ('price',)
+
+
+class WeeklyMealUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WeeklyMealUser
         fields = '__all__'
 
 
