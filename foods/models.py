@@ -21,6 +21,9 @@ class PaymentFood(ID):
     default_payment = models.CharField(max_length=3, choices=PaymentChoices.choices, default=PaymentChoices.DFC)
     user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='payment_food')
 
+    def __str__(self):
+        return f'PaymentFood: {self.user}'
+
     class Meta:
         app_label = 'foods'
 
@@ -55,6 +58,7 @@ class WeeklyMealUser(ID):
 
     class Meta:
         app_label = 'foods'
+        unique_together = ('payment', 'weekly_meal_food')
 
 
 class WeeklyMeal(ID):
@@ -65,9 +69,9 @@ class WeeklyMeal(ID):
 
     date = models.DateField(verbose_name='تاریخ')
     food = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='غذا',
-                             related_name='weekly_meal_food')
+                             related_name='weekly_meal_food', limit_choices_to={'type': 'FOOD'})
     desire = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='پیش غذا',
-                               related_name='weekly_meal_desire')
+                               related_name='weekly_meal_desire', limit_choices_to={'type': 'DESIRE'})
     meal = models.CharField(max_length=9, choices=ChoiceMeal.choices, verbose_name='نوع وعده')
     price = models.PositiveBigIntegerField(verbose_name='قیمت', default=0)
 
@@ -80,6 +84,9 @@ class WeeklyMeal(ID):
             self.price += self.desire.price
 
         super().save()
+
+    def __str__(self):
+        return f'{self.food}:{self.desire} - {self.date} - {self.meal}'
 
     class Meta:
         app_label = 'foods'
