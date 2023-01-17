@@ -11,7 +11,7 @@ class ID(models.Model):
 
 
 class PaymentFood(ID):
-    # weekly_meal_payment :Inversely related to 'PaymentFood' from 'WeeklyMeal'
+    # weekly_meal_food :Inversely related to 'PaymentFood' from 'WeeklyMealUser'
 
     class PaymentChoices(models.TextChoices):
         DFC = 'DFC', ('کسر از اعتبار')
@@ -46,6 +46,17 @@ class FoodAndDesire(ID):
         app_label = 'foods'
 
 
+class WeeklyMealUser(ID):
+    count = models.PositiveIntegerField(verbose_name='تعداد', default=1)
+    payment = models.ForeignKey('foods.PaymentFood', on_delete=models.CASCADE, related_name='weekly_meal_payment',
+                                verbose_name='پرداخت')
+    weekly_meal_food = models.ForeignKey('foods.WeeklyMeal', on_delete=models.CASCADE,
+                                         related_name='weekly_meal_food', verbose_name="غذای انتخابی")
+
+    class Meta:
+        app_label = 'foods'
+
+
 class WeeklyMeal(ID):
     class ChoiceMeal(models.TextChoices):
         BREAKFAST = 'BREAKFAST', ('صبحانه')
@@ -58,8 +69,6 @@ class WeeklyMeal(ID):
     desire = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='پیش غذا',
                                related_name='weekly_meal_desire')
     meal = models.CharField(max_length=9, choices=ChoiceMeal.choices, verbose_name='نوع وعده')
-    payment = models.ForeignKey('foods.PaymentFood', on_delete=models.CASCADE, verbose_name='پرداخت',
-                                related_name='weekly_meal_payment')
     price = models.PositiveBigIntegerField(verbose_name='قیمت', default=0)
 
     def save(
