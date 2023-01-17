@@ -31,7 +31,7 @@ class PaymentFoodSerializer(serializers.ModelSerializer):
         }
 
     bills = serializers.SerializerMethodField()
-    weekly_meal_payment = WeeklyMealSerializer(many=True, read_only=True)
+    weekly_meal_payment = WeeklyMealUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = PaymentFood
