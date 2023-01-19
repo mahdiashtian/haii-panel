@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, mixins, viewsets
 
 from foods.models import PaymentFood, FoodAndDesire, WeeklyMeal, WeeklyMealUser
@@ -14,6 +15,8 @@ class FoodAndDesireViewSet(mixins.CreateModelMixin,
     queryset = FoodAndDesire.objects.all()
     serializer_class = FoodAndDesireSerializer
     permission_classes = [IsSuperUser]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['type']
 
 
 class WeeklyMealViewSet(viewsets.ModelViewSet):
