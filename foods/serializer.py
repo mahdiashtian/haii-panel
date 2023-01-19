@@ -4,6 +4,12 @@ from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood, WeeklyMealUser
 
 
 class WeeklyMealSerializer(serializers.ModelSerializer):
+    def to_representation(self, instance):
+        result = super().to_representation(instance)
+        result['food'] = FoodAndDesireSerializer(instance.food).data
+        result['desire'] = FoodAndDesireSerializer(instance.desire).data
+        return result
+
     class Meta:
         model = WeeklyMeal
         fields = '__all__'
