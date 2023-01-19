@@ -90,3 +90,4 @@ class WeeklyMeal(ID):
 
     class Meta:
         app_label = 'foods'
+        unique_together = ('food', 'desire', 'date', 'meal')
