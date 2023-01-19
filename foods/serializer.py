@@ -1,5 +1,7 @@
+from django.utils import timezone
 from rest_framework import serializers
 
+from foods.exception import DateIsPast
 from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood, WeeklyMealUser
 
 
@@ -11,6 +13,12 @@ class WeeklyMealSerializer(serializers.ModelSerializer):
         if instance.desire:
             result['desire'] = FoodAndDesireSerializer(instance.desire).data
         return result
+
+    def validate_date(self, value):
+        today = timezone.now().date()
+        if value < today:
+            raise DateIsPast
+        return value
 
     class Meta:
         model = WeeklyMeal
