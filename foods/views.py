@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, mixins, viewsets
 
@@ -20,9 +21,13 @@ class FoodAndDesireViewSet(mixins.CreateModelMixin,
 
 
 class WeeklyMealViewSet(viewsets.ModelViewSet):
-    queryset = WeeklyMeal.objects.all()
     serializer_class = WeeklyMealSerializer
     permission_classes = [IsSuperUserOrReadOnly]
+    
+    def get_queryset(self):
+        date = timezone.now().date()
+        queryset = WeeklyMeal.objects.filter(date__gte=date).order_by('date')
+        return queryset
 
 
 class WeeklyMealUserViewSet(viewsets.ModelViewSet):
