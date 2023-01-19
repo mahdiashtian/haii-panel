@@ -71,7 +71,8 @@ class WeeklyMeal(ID):
     food = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='غذا',
                              related_name='weekly_meal_food', limit_choices_to={'type': 'FOOD'})
     desire = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='پیش غذا',
-                               related_name='weekly_meal_desire', limit_choices_to={'type': 'DESIRE'})
+                               related_name='weekly_meal_desire', limit_choices_to={'type': 'DESIRE'}, null=True,
+                               blank=True)
     meal = models.CharField(max_length=9, choices=ChoiceMeal.choices, verbose_name='نوع وعده')
     price = models.PositiveBigIntegerField(verbose_name='قیمت', default=0)
 
