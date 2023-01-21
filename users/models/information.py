@@ -71,9 +71,9 @@ class TeamUser(models.Model):
 
 class TransactionHistory(models.Model):
     class PaymentChoices(models.TextChoices):
-        DFC = 'DFC', ('کسر از اعتبار')
+        CBC = 'CBC', ('کارت به کارت')
         PG = 'PG', ('درگاه پراخت')
-        ETQ = 'ETQ', ('هربار سوال شود')
+        TT = 'TT', ('انتقال')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transaction_type = models.CharField(max_length=3, choices=PaymentChoices.choices, verbose_name='نوع تراکنش')
