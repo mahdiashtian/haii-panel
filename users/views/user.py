@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -46,8 +48,18 @@ class SendCredit(APIView):
 
 
 class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
-    queryset = TransactionHistory.objects.filter(status=False)
+    queryset = TransactionHistory.objects.all()
     serializer_class = TransactionHistorySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        'date': ['lt', 'gt'],
+        'status': ['exact'],
+    }
+
+    def get_queryset(self):
+        if not self.request.user.is_superuser:
+            return self.queryset.filter(Q(user_receiver=self.request.user) | Q(user_sender=self.request.user))
+        return self.queryset
 
     def perform_create(self, serializer):
         serializer.save(user_receiver=self.request.user, transaction_type='CAV', status=False)
@@ -63,7 +75,7 @@ class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
         user.save()
 
     def get_permissions(self):
-        if self.request.method == 'POST':
+        if self.action in ['list', 'retrieve', 'create']:
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsSuperUser]
