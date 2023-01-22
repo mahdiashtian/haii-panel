@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from users.exception import UserDoesNotExist, CreditAmountMustBePositive, CreditNotEnough, SelfCredit
+from users.models import TransactionHistory
 
 User = get_user_model()
 
@@ -41,3 +42,10 @@ class SendCreditSerializer(serializers.Serializer):
         if user.credit < value:
             raise CreditNotEnough
         return value
+
+
+class TransactionHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionHistory
+        fields = "__all__"
+        read_only_fields = ('user_sender', 'status', 'date', 'transaction_type', 'user_receiver')
