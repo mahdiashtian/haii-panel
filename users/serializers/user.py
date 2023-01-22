@@ -45,6 +45,9 @@ class SendCreditSerializer(serializers.Serializer):
 
 
 class TransactionHistorySerializer(serializers.ModelSerializer):
+    user_receiver = UserSerializer(read_only=True)
+    user_sender = UserSerializer(read_only=True)
+
     class Meta:
         model = TransactionHistory
         fields = "__all__"
