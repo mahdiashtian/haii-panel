@@ -79,11 +79,14 @@ class TransactionHistory(models.Model):
     transaction_type = models.CharField(max_length=3, choices=PaymentChoices.choices, verbose_name='نوع تراکنش')
     price = models.IntegerField(verbose_name='مبلغ')
     date = models.DateField(auto_now_add=True, verbose_name='تاریخ')
-    status = models.BooleanField(verbose_name='وضعیت')
-    document = models.FileField(upload_to=upload_image_path, verbose_name='فایل تراکنش')
-    description = models.TextField(verbose_name='توضیحات')
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='transaction_history',
-                             verbose_name='کاربر')
+    status = models.BooleanField(verbose_name='وضعیت', default=False)
+    document = models.FileField(upload_to=upload_image_path, verbose_name='فایل تراکنش', null=True, blank=True)
+    description = models.TextField(verbose_name='توضیحات', null=True, blank=True)
+    user_receiver = models.ForeignKey('users.User', on_delete=models.CASCADE,
+                                      related_name='transaction_history_receiver',
+                                      verbose_name='کاربر دریافت کننده', null=True, blank=True)
+    user_sender = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='transaction_history_sender',
+                                    verbose_name='کاربر ارسال کننده', null=True, blank=True)
 
     class Meta:
         app_label = 'users'
