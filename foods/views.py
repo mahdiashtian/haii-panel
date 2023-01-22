@@ -23,7 +23,7 @@ class FoodAndDesireViewSet(mixins.CreateModelMixin,
 class WeeklyMealViewSet(viewsets.ModelViewSet):
     serializer_class = WeeklyMealSerializer
     permission_classes = [IsSuperUserOrReadOnly]
-    
+
     def get_queryset(self):
         date = timezone.now().date()
         queryset = WeeklyMeal.objects.filter(date__gte=date).order_by('date')
