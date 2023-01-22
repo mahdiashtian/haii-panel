@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -75,7 +76,7 @@ class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
         user.save()
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve', 'create']:
+        if self.action in ['list', 'retrieve', 'create','information']:
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsSuperUser]
@@ -91,6 +92,25 @@ class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
                 'user_sender', 'status', 'date', 'transaction_type', 'user_receiver')
 
         return serializer_class
+
+    @action(detail=False, methods=['get'])
+    def information(self, request, *args, **kwargs):
+        user = self.request.user
+        credit_in_the_month = self.queryset.filter(date__month__exact=1).aggregate(Sum('price'))
+        credit_blocked = self.queryset.filter(status=False).aggregate(Sum('price'))
+        count_all = self.queryset.aggregate(Sum('price'))
+        if user.is_superuser:
+            debt = User.objects.filter(credit__lte=0).aggregate(Sum('credit'))
+
+        else:
+            debt = abs(user.credit) if user.credit < 0 else 0
+        return Response({
+            'debt': debt,
+            'credit_in_the_month': credit_in_the_month,
+            'credit_blocked': credit_blocked,
+            'count_all': count_all,
+
+        })
 
 
 class IncreaseCreditCardNumberShow(APIView):
