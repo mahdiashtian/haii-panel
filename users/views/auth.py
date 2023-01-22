@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from user.jwt_auth import set_jwt_cookies, set_jwt_access_cookie
+from users.jwt_auth import set_jwt_cookies, set_jwt_access_cookie
 
 User = get_user_model()
 
