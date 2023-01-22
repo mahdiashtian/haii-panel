@@ -163,3 +163,6 @@ SIMPLE_JWT = {
 
 JWT_AUTH_COOKIE = 'access'
 JWT_AUTH_REFRESH_COOKIE = 'refresh'
+
+CARD_NUMBER = config('CARD_NUMBER')
+OWNER_NAME = config('OWNER_NAME')
