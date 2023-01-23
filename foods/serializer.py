@@ -27,9 +27,25 @@ class WeeklyMealSerializer(serializers.ModelSerializer):
 
 
 class WeeklyMealUserSerializer(serializers.ModelSerializer):
+
+    def to_representation(self, instance):
+        result = super().to_representation(instance)
+        if instance.weekly_meal_food:
+            result['weekly_meal_food'] = WeeklyMealSerializer(instance.weekly_meal_food).data
+        return result
+
+    def validate(self, attrs):
+        count = attrs['count']
+        weekly_meal = attrs['weekly_meal_food']
+        if self.context['request'].user.is_superuser:
+            return attrs
+        if count > weekly_meal.food.limit:
+            raise serializers.ValidationError('Count is more than food count')
+        return attrs
+
     class Meta:
         model = WeeklyMealUser
-        fields = '__all__'
+        exclude = ('payment',)
 
 
 class FoodAndDesireSerializer(serializers.ModelSerializer):
