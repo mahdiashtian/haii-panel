@@ -96,12 +96,12 @@ class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def information(self, request, *args, **kwargs):
         user = self.request.user
-        credit_in_the_month = self.queryset.filter(date__month__exact=1).aggregate(Sum('price'))
-        credit_blocked = self.queryset.filter(status=False).aggregate(Sum('price'))
-        count_all = self.queryset.aggregate(Sum('price'))
+        queryset = self.get_queryset()
+        credit_in_the_month = queryset.filter(date__month__exact=1).aggregate(Sum('price'))
+        credit_blocked = queryset.filter(status=False).aggregate(Sum('price'))
+        count_all = queryset.aggregate(Sum('price'))
         if user.is_superuser:
             debt = User.objects.filter(credit__lte=0).aggregate(Sum('credit'))
-
         else:
             debt = abs(user.credit) if user.credit < 0 else 0
         return Response({
