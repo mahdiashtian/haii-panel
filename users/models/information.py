@@ -75,11 +75,17 @@ class TransactionHistory(models.Model):
         PG = 'PG', ('درگاه پراخت')
         TT = 'TT', ('انتقال')
 
+    class StatusChoices(models.TextChoices):
+        REJECTED = 'RE', ('رد شده')
+        ACCEPTED = 'AC', ('تایید شده')
+        WAITING = 'WA', ('در انتظار تایید')
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transaction_type = models.CharField(max_length=3, choices=PaymentChoices.choices, verbose_name='نوع تراکنش')
     price = models.IntegerField(verbose_name='مبلغ')
     date = models.DateField(auto_now_add=True, verbose_name='تاریخ')
-    status = models.BooleanField(verbose_name='وضعیت', default=False)
+    status = models.CharField(max_length=2, choices=StatusChoices.choices, verbose_name='وضعیت',
+                              default=StatusChoices.WAITING)
     document = models.FileField(upload_to=upload_image_path, verbose_name='فایل تراکنش', null=True, blank=True)
     description = models.TextField(verbose_name='توضیحات', null=True, blank=True)
     user_receiver = models.ForeignKey('users.User', on_delete=models.CASCADE,
