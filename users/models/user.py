@@ -88,8 +88,8 @@ class User(AbstractUser):
     # transaction_history :Inversely related to 'User' from 'TransactionHistory'
 
     credit = models.DecimalField(decimal_places=2,
-                                   max_digits=11,
-                                   verbose_name="اعتبار", default=0)
+                                 max_digits=11,
+                                 verbose_name="اعتبار", default=0)
     iranian = IranianManager()
     foreigner = ForeignerManager()
 
