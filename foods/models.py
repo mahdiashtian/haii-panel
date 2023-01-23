@@ -50,11 +50,23 @@ class FoodAndDesire(ID):
 
 
 class WeeklyMealUser(ID):
+    class PaymentChoices(models.TextChoices):
+        DFC = 'DFC', ('کسر از اعتبار')
+        PG = 'PG', ('درگاه پراخت')
+
+    type_payment = models.CharField(max_length=3, choices=PaymentChoices.choices, default=PaymentChoices.DFC)
     count = models.PositiveIntegerField(verbose_name='تعداد', default=1)
     payment = models.ForeignKey('foods.PaymentFood', on_delete=models.CASCADE, related_name='weekly_meal_payment',
                                 verbose_name='پرداخت')
     weekly_meal_food = models.ForeignKey('foods.WeeklyMeal', on_delete=models.CASCADE,
                                          related_name='weekly_meal_food', verbose_name="غذای انتخابی")
+
+    def save(
+            self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        if self.payment.default_payment != "ETQ":
+            self.type_payment = self.payment.default_payment
+        super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
         app_label = 'foods'
@@ -84,11 +96,11 @@ class WeeklyMeal(ID):
         if self.desire:
             self.price += self.desire.price
 
-        super().save()
+        super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
         return f'{self.food}:{self.desire} - {self.date} - {self.meal}'
 
     class Meta:
         app_label = 'foods'
-        unique_together = ('food', 'desire', 'date', 'meal')
+        unique_together = ('food', 'date', 'meal')
