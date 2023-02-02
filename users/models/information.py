@@ -5,11 +5,18 @@ from django.db import models
 from utils.utils import upload_image_path
 
 
-class BaseInformationModel(models.Model):
+class ID(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        abstract = True
+
+
+class BaseInformationModel(models.Model):
     name = models.CharField(max_length=255, verbose_name='نام')
     description = models.TextField(verbose_name='توضیحات')
-    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='%(class)s', verbose_name='پروفایل')
+    profile = models.ForeignKey('users.Profile', on_delete=models.CASCADE, related_name='%(class)s_profile',
+                                verbose_name='پروفایل')
 
     class Meta:
         abstract = True
@@ -18,7 +25,7 @@ class BaseInformationModel(models.Model):
         return self.name
 
 
-class Education(BaseInformationModel):
+class Education(ID, BaseInformationModel):
     class GradeChoices(models.TextChoices):
         CYCLE = 'CY', ('سیکل')
         DIPLOM = 'DI', ('دیپلم')
@@ -38,12 +45,12 @@ class Education(BaseInformationModel):
         app_label = 'users'
 
 
-class Skill(BaseInformationModel):
+class Skill(ID, BaseInformationModel):
     class Meta:
         app_label = 'users'
 
 
-class Experience(BaseInformationModel):
+class Experience(ID, BaseInformationModel):
     image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر لوگو موسسه')
     company = models.CharField(max_length=255, verbose_name='نام شرکت')
     start = models.DateField(verbose_name='تاریخ شروع')
@@ -60,8 +67,8 @@ class TeamUser(models.Model):
         LEARNER = 'LE', ('کارآموز')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    team = models.ForeignKey('teams.Team', on_delete=models.CASCADE, related_name='%(class)s', verbose_name='تیم')
-    profile = models.OneToOneField('users.Profile', on_delete=models.CASCADE, related_name='%(class)s',
+    team = models.ForeignKey('teams.Team', on_delete=models.CASCADE, related_name='team_user_team', verbose_name='تیم')
+    profile = models.OneToOneField('users.Profile', on_delete=models.CASCADE, related_name='team_user_profile',
                                    verbose_name='پروفایل')
     membership_type = models.CharField(max_length=2, choices=MembershipChoices.choices, verbose_name='نوع عضویت')
 
@@ -89,9 +96,10 @@ class TransactionHistory(models.Model):
     document = models.FileField(upload_to=upload_image_path, verbose_name='فایل تراکنش', null=True, blank=True)
     description = models.TextField(verbose_name='توضیحات', null=True, blank=True)
     user_receiver = models.ForeignKey('users.User', on_delete=models.CASCADE,
-                                      related_name='transaction_history_receiver',
+                                      related_name='transaction_history_user_receiver',
                                       verbose_name='کاربر دریافت کننده', null=True, blank=True)
-    user_sender = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='transaction_history_sender',
+    user_sender = models.ForeignKey('users.User', on_delete=models.CASCADE,
+                                    related_name='transaction_history_user_sender',
                                     verbose_name='کاربر ارسال کننده', null=True, blank=True)
 
     class Meta:

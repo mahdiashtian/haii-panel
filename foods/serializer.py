@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
 
-from foods.exception import DateIsPast
+from foods.exception import DateIsPast, FoodAndDesireIsNotValid, LimitFoodAndDesire
 from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood, WeeklyMealUser
 
 
@@ -16,9 +17,19 @@ class WeeklyMealSerializer(serializers.ModelSerializer):
 
     def validate_date(self, value):
         today = timezone.now().date()
-        if value < today:
+        date_reservation = today + timezone.timedelta(days=settings.ADMIN_DAY_RESERVATION)
+        if value < date_reservation:
             raise DateIsPast
         return value
+
+    def validate(self, attrs):
+        food = attrs.get('food', None)
+        desire = attrs.get('desire', None)
+        if food and desire:
+            raise FoodAndDesireIsNotValid
+        if not food and not desire:
+            raise FoodAndDesireIsNotValid
+        return attrs
 
     class Meta:
         model = WeeklyMeal
@@ -40,7 +51,7 @@ class WeeklyMealUserSerializer(serializers.ModelSerializer):
         if self.context['request'].user.is_superuser:
             return attrs
         if count > weekly_meal.food.limit:
-            raise serializers.ValidationError('Count is more than food count')
+            raise LimitFoodAndDesire
         return attrs
 
     class Meta:
@@ -63,7 +74,7 @@ class PaymentFoodSerializer(serializers.ModelSerializer):
         }
 
     bills = serializers.SerializerMethodField()
-    weekly_meal_payment = WeeklyMealUserSerializer(many=True, read_only=True)
+    weekly_meal_user_payment = WeeklyMealUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = PaymentFood

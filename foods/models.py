@@ -1,6 +1,8 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class ID(models.Model):
@@ -11,15 +13,14 @@ class ID(models.Model):
 
 
 class PaymentFood(ID):
-    # weekly_meal_food :Inversely related to 'PaymentFood' from 'WeeklyMealUser'
-
+    # weekly_meal_user_payment :Inversely related to 'PaymentFood' from 'WeeklyMealUser'
     class PaymentChoices(models.TextChoices):
         DFC = 'DFC', ('کسر از اعتبار')
         PG = 'PG', ('درگاه پراخت')
         ETQ = 'ETQ', ('هربار سوال شود')
 
     default_payment = models.CharField(max_length=3, choices=PaymentChoices.choices, default=PaymentChoices.DFC)
-    user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='payment_food')
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='payment_food_user')
 
     def __str__(self):
         return f'PaymentFood: {self.user}'
@@ -29,8 +30,8 @@ class PaymentFood(ID):
 
 
 class FoodAndDesire(ID):
-    # weekly_meal_food :Inversely related to 'FoodAndDesire' from 'WeeklyMeal'
     # weekly_meal_desire :Inversely related to 'FoodAndDesire' from 'WeeklyMeal'
+    # weekly_meal_food :Inversely related to 'FoodAndDesire' from 'WeeklyMeal'
 
     class ChoiceFoodOrDesire(models.TextChoices):
         FOOD = 'FOOD', ('غذا')
@@ -56,10 +57,10 @@ class WeeklyMealUser(ID):
 
     type_payment = models.CharField(max_length=3, choices=PaymentChoices.choices, default=PaymentChoices.DFC)
     count = models.PositiveIntegerField(verbose_name='تعداد', default=1)
-    payment = models.ForeignKey('foods.PaymentFood', on_delete=models.CASCADE, related_name='weekly_meal_payment',
+    payment = models.ForeignKey('foods.PaymentFood', on_delete=models.CASCADE, related_name='weekly_meal_user_payment',
                                 verbose_name='پرداخت')
     weekly_meal_food = models.ForeignKey('foods.WeeklyMeal', on_delete=models.CASCADE,
-                                         related_name='weekly_meal_food', verbose_name="غذای انتخابی")
+                                         related_name='weekly_meal_user_weekly_meal_food', verbose_name="غذای انتخابی")
 
     def save(
             self, force_insert=False, force_update=False, using=None, update_fields=None
@@ -74,6 +75,8 @@ class WeeklyMealUser(ID):
 
 
 class WeeklyMeal(ID):
+    # weekly_meal_user_weekly_meal_food :Inversely related to 'WeeklyMeal' from 'WeeklyMealUser'
+
     class ChoiceMeal(models.TextChoices):
         BREAKFAST = 'BREAKFAST', ('صبحانه')
         LUNCH = 'LUNCH', ('ناهار')
@@ -81,7 +84,7 @@ class WeeklyMeal(ID):
 
     date = models.DateField(verbose_name='تاریخ')
     food = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='غذا',
-                             related_name='weekly_meal_food', limit_choices_to={'type': 'FOOD'})
+                             related_name='weekly_meal_food', limit_choices_to={'type': 'FOOD'}, null=True, blank=True)
     desire = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='پیش غذا',
                                related_name='weekly_meal_desire', limit_choices_to={'type': 'DESIRE'}, null=True,
                                blank=True)
@@ -101,6 +104,9 @@ class WeeklyMeal(ID):
     def __str__(self):
         return f'{self.food}:{self.desire} - {self.date} - {self.meal}'
 
+    def is_deletable(self):
+        return self.date > timezone.now().date() + timezone.timedelta(days=settings.ADMIN_DAY_RESERVATION)
+
     class Meta:
         app_label = 'foods'
-        unique_together = ('food', 'date', 'meal')
+        unique_together = (('food', 'date', 'meal'), ('desire', 'date', 'meal'))

@@ -83,9 +83,10 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin, ID):
 
 
 class User(AbstractUser):
-    # profile :Inversely related to 'User' from 'Profile'
-    # payment_food :Inversely related to 'User' from 'PaymentFood'
-    # transaction_history :Inversely related to 'User' from 'TransactionHistory'
+    # profile_user :Inversely related to 'User' from 'Profile'
+    # payment_food_user :Inversely related to 'User' from 'PaymentFood'
+    # transaction_history_user_receiver :Inversely related to 'User' from 'TransactionHistory'
+    # transaction_history_user_sender :Inversely related to 'User' from 'TransactionHistory'
 
     credit = models.DecimalField(decimal_places=2,
                                  max_digits=11,

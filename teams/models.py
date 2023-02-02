@@ -15,15 +15,15 @@ class ID(models.Model):
 
 
 class Team(ID):
-    # activity :Inversely related to 'Team' from 'Activity'
-    # team_user :Inversely related to 'Team' from 'TeamUser'
-    # membership_request :Inversely related to 'Team' from 'MembershipRequest'
-    # member_recruitment_filter :Inversely related to 'Team' from 'MemberRecruitmentFilter'
+    # activity_team :Inversely related to 'Team' from 'Activity'
+    # team_user_team :Inversely related to 'Team' from 'TeamUser'
+    # membership_request_team :Inversely related to 'Team' from 'MembershipRequest'
+    # member_recruitment_filter_team :Inversely related to 'Team' from 'MemberRecruitmentFilter'
 
     name = models.CharField(max_length=256, verbose_name="نام تیم")
     description = models.TextField(verbose_name="توضیحات")
-    managers = models.ManyToManyField("users.Profile", related_name='managers_team', verbose_name="مدیران تیم")
-    ceo = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='ceo_team',
+    managers = models.ManyToManyField("users.Profile", related_name='team_manager', verbose_name="مدیران تیم")
+    ceo = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='team_ceo',
                             verbose_name="مدیر عامل")
 
     def __str__(self):
@@ -34,16 +34,16 @@ class Team(ID):
 
 
 class Activity(ID):
-    # children :Inversely related to 'Activity' from 'Activity'
-    # membership_request :Inversely related to 'Activity' from 'MembershipRequest'
-    # member_recruitment_filter :Inversely related to 'Activity' from 'MemberRecruitmentFilter'
+    # activity_parent :Inversely related to 'Activity' from 'Activity'
+    # membership_request_activity :Inversely related to 'Activity' from 'MembershipRequest'
+    # member_recruitment_filter_activity :Inversely related to 'Activity' from 'MemberRecruitmentFilter'
 
     name = models.CharField(max_length=256, verbose_name='نام فعالیت')
     description = models.TextField(verbose_name='توضیحات فعالیت')
     image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر فعالیت')
-    parent = models.ForeignKey("self", on_delete=models.CASCADE, related_name='children', null=True, blank=True,
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, related_name='activity_parent', null=True, blank=True,
                                verbose_name='ریشه فعالیت')
-    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, null=True, blank=True, related_name='activity',
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, null=True, blank=True, related_name='activity_team',
                              verbose_name='تیم مربوطه')
 
     def __str__(self):
@@ -77,9 +77,9 @@ class MemberRecruitmentFilter(ID):
     gender = models.CharField(max_length=1, choices=GenderChoices.choices, verbose_name='جنسیت')
     city = models.CharField(max_length=256, verbose_name='شهر')
     membership_type = models.CharField(max_length=2, choices=MembershipChoices.choices, verbose_name='نوع عضویت')
-    team = models.OneToOneField("teams.Team", on_delete=models.CASCADE, related_name='member_recruitment_filter',
+    team = models.OneToOneField("teams.Team", on_delete=models.CASCADE, related_name='member_recruitment_filter_team',
                                 verbose_name='تیم مربوطه')
-    activity = models.ManyToManyField("teams.Activity", related_name='member_recruitment_filter',
+    activity = models.ManyToManyField("teams.Activity", related_name='member_recruitment_filter_activity',
                                       verbose_name='فعالیت مربوطه')
 
     def __str__(self):
@@ -114,12 +114,12 @@ class MembershipRequest(ID):
     gender = models.CharField(max_length=1, choices=GenderChoices.choices, verbose_name='جنسیت')
     city = models.CharField(max_length=256, verbose_name='شهر')
     membership_type = models.CharField(max_length=2, choices=MembershipChoices.choices, verbose_name='نوع عضویت')
-    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name='membership_request',
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name='membership_request_team',
                              verbose_name='تیم مربوطه')
     cv = models.FileField(upload_to=upload_image_path, verbose_name='رزومه')
     status = models.BooleanField(default=False, verbose_name='رد/تایید شده')
     description = models.TextField(verbose_name='توضیحات')
-    activity = models.ManyToManyField("teams.Activity", related_name='membership_request',
+    activity = models.ManyToManyField("teams.Activity", related_name='membership_request_activity',
                                       verbose_name='بخش های فعالیت')
 
     def __str__(self):

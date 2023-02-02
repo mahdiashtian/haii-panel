@@ -6,25 +6,26 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from main.permissions import IsSuperUser
 from users.models import TransactionHistory
-from users.serializers.user import CheckDestinationAccountSerializer, SendCreditSerializer, TransactionHistorySerializer
+from users.serializers import CheckDestinationAccountSerializer, SendCreditSerializer, TransactionHistorySerializer
 
 User = get_user_model()
 
 
-class CheckDestinationAccount(APIView):
+class CheckDestinationAccountAV(APIView):
     def post(self, request):
         serializer = CheckDestinationAccountSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data)
 
 
-class SendCredit(APIView):
+class SendCreditAV(APIView):
     def post(self, request):
         serializer = SendCreditSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -45,16 +46,19 @@ class SendCredit(APIView):
         )
 
 
-class IncreaseCreditCardNumberShow(APIView):
+class CreditCardNumberShowAP(APIView):
     def get(self, request):
-        return Response({'card_number': settings.CARD_NUMBER, 'owner_name': settings.OWNER_NAME})
+        return Response(
+            {'card_number': settings.CARD_NUMBER, 'owner_name': settings.OWNER_NAME, 'credit': request.user.credit})
 
 
-class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
+class IncreaseCreditCardNumberVS(viewsets.ModelViewSet):
     queryset = TransactionHistory.objects.all()
     serializer_class = TransactionHistorySerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['user_receiver__username', 'description']
+    pagination_class = PageNumberPagination
+
     filterset_fields = {
         'date': ['lt', 'gt'],
         'status': ['exact'],
@@ -72,10 +76,6 @@ class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
         else:
             status = 'WA'
         serializer.save(user_receiver=self.request.user, status=status)
-
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        return response
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'create', 'information']:
@@ -107,6 +107,7 @@ class IncreaseCreditCardNumberViewSet(viewsets.ModelViewSet):
         else:
             debt = abs(user.credit) if user.credit < 0 else 0
         return Response({
+            'credit': user.credit,
             'debt': debt,
             'credit_in_the_month': credit_in_the_month,
             'credit_blocked': credit_blocked,

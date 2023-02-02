@@ -15,7 +15,7 @@ class ID(models.Model):
 
 
 class Child(ID):
-    # profile :Inversely related to 'Child' from 'Profile'
+    # profile_child :Inversely related to 'Child' from 'Profile'
 
     image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر شناسنامه')
 
@@ -24,14 +24,14 @@ class Child(ID):
 
 
 class Profile(ID):
-    # ceo_team :Inversely related to 'Profile' from 'Team'
-    # managers_team :Inversely related to 'Profile' from 'Team'
-    # education :Inversely related to 'Profile' from 'Education'
-    # skill :Inversely related to 'Profile' from 'Skill'
-    # experience :Inversely related to 'Profile' from 'Experience'
-    # team_user :Inversely related to 'Profile' from 'TeamUser'
-    # iranian :Inversely related to 'Profile' from 'ProfileIranian'
-    # foreign :Inversely related to 'Profile' from 'ProfileForeign'
+    # team_ceo :Inversely related to 'Profile' from 'Team'
+    # team_manager :Inversely related to 'Profile' from 'Team'
+    # education_profile :Inversely related to 'Profile' from 'Education'
+    # skill_profile :Inversely related to 'Profile' from 'Skill'
+    # experience_profile :Inversely related to 'Profile' from 'Experience'
+    # team_user_profile :Inversely related to 'Profile' from 'TeamUser'
+    # iranian_profile :Inversely related to 'Profile' from 'ProfileIranian'
+    # foreign_profile :Inversely related to 'Profile' from 'ProfileForeign'
 
     class GenderChoices(models.TextChoices):
         MAN = 'M', ('مرد')
@@ -52,7 +52,7 @@ class Profile(ID):
                                     verbose_name="تایید/عدم تایید حساب کاربری")
     country = models.CharField(max_length=4, choices=get_country_list(), verbose_name="کشور")
     date_of_birth = models.DateField(verbose_name="تاریخ تولد")
-    child = models.ManyToManyField(Child, related_name='profile', blank=True, verbose_name='کودکان')
+    child = models.ManyToManyField(Child, related_name='profile_child', blank=True, verbose_name='کودکان')
     phone_number = models.CharField(max_length=13,
                                     validators=[
                                         RegexValidator(
@@ -70,7 +70,7 @@ class Profile(ID):
     marital_status = models.CharField(max_length=25, choices=MaritalStatusChoices.choices, verbose_name='وضعیت تاهل')
     first_name = models.CharField(_("first name"), max_length=150)
     last_name = models.CharField(_("last name"), max_length=150)
-    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='profile', verbose_name='کاربر')
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='profile_user', verbose_name='کاربر')
 
     def get_full_name(self):
         full_name = "%s %s" % (self.first_name, self.last_name)
@@ -86,21 +86,21 @@ class Profile(ID):
         app_label = 'users'
 
 
-class ProfileIranian(ID):
+class Iranian(ID):
     national_code = models.CharField(max_length=10, verbose_name="کد ملی")
     national_card_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر کارت ملی")
     birth_certificate_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر شناسنامه")
-    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='iranian',
+    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='iranian_profile',
                                    verbose_name='پروفایل')
 
     class Meta:
         app_label = 'users'
 
 
-class ProfileForeigner(ID):
+class Foreigner(ID):
     passport_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر پاسپورت")
     exclusive_code = models.CharField(max_length=12, verbose_name='کد اختصاصی')
-    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='foreigner',
+    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='foreigner_profile',
                                    verbose_name='پروفایل', )
 
     class Meta:
