@@ -84,7 +84,7 @@ class WeeklyMeal(ID):
 
     date = models.DateField(verbose_name='تاریخ')
     food = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='غذا',
-                             related_name='weekly_meal_food', limit_choices_to={'type': 'FOOD'}, null=True, blank=True)
+                             related_name='weekly_meal_food', limit_choices_to={'type': 'FOOD'})
     desire = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='پیش غذا',
                                related_name='weekly_meal_desire', limit_choices_to={'type': 'DESIRE'}, null=True,
                                blank=True)

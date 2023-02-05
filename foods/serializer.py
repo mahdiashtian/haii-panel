@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
 
-from foods.exception import DateIsPast, FoodAndDesireIsNotValid, LimitFoodAndDesire
+from foods.exception import DateIsPast, LimitFoodAndDesire
 from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood, WeeklyMealUser
 
 
@@ -21,15 +21,6 @@ class WeeklyMealSerializer(serializers.ModelSerializer):
         if value < date_reservation:
             raise DateIsPast
         return value
-
-    def validate(self, attrs):
-        food = attrs.get('food', None)
-        desire = attrs.get('desire', None)
-        if food and desire:
-            raise FoodAndDesireIsNotValid
-        if not food and not desire:
-            raise FoodAndDesireIsNotValid
-        return attrs
 
     class Meta:
         model = WeeklyMeal
