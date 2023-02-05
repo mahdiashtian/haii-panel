@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils import timezone
 from rest_framework import serializers
 
-from foods.exception import DateIsPast, LimitFoodAndDesire
+from foods.exception import DateIsPast, LimitFoodAndDesire, LimitMeal
 from foods.models import WeeklyMeal, FoodAndDesire, PaymentFood, WeeklyMealUser
 
 
@@ -39,10 +39,16 @@ class WeeklyMealUserSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         count = attrs['count']
         weekly_meal = attrs['weekly_meal_food']
-        if self.context['request'].user.is_superuser:
+        user = self.context['request'].user
+        meal = weekly_meal.meal
+        date = weekly_meal.date
+        if user.is_superuser:
             return attrs
         if count > weekly_meal.food.limit:
             raise LimitFoodAndDesire
+        if user.payment_food_user.weekly_meal_user_payment.filter(weekly_meal_food__date=date,
+                                                                  weekly_meal_food__meal=meal).exists():
+            raise LimitMeal
         return attrs
 
     class Meta:
