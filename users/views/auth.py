@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
-from users.jwt_auth import set_jwt_cookies, set_jwt_access_cookie
+from users.jwt_auth import set_jwt_cookies, set_jwt_access_cookie, unset_jwt_cookies
 
 User = get_user_model()
 
@@ -28,4 +29,12 @@ class TokenRefreshView(jwt_views.TokenRefreshView):
         response = super().post(request, *args, **kwargs)
         access_token = response.data['access']
         set_jwt_access_cookie(response, access_token)
+        return response
+
+
+# Logout view
+class TokenBlacklistView(APIView):
+    def post(self, request, *args, **kwargs):
+        response = Response(data={'detail': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+        unset_jwt_cookies(response)
         return response
