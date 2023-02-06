@@ -98,3 +98,4 @@ class User(AbstractUser):
         default_manager_name = 'objects'
         base_manager_name = 'objects'
         app_label = 'users'
+

@@ -1,14 +1,19 @@
 from django.urls import re_path, path, include
-from rest_framework import routers
+from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenVerifyView
 
 from users.views import TokenObtainPairView, TokenRefreshView, CheckDestinationAccountAV, SendCreditAV, \
-    IncreaseCreditCardNumberVS, CreditCardNumberShowAP, TokenBlacklistView
+    IncreaseCreditCardNumberVS, CreditCardNumberShowAP, TokenBlacklistView, SkillViewSet, ExperienceViewSet, \
+    EducationViewSet,ProfileViewSet
 
 app_name = 'users'
 
-routers = routers.DefaultRouter()
+routers = DefaultRouter()
 routers.register(r'increase-credit-card-number', IncreaseCreditCardNumberVS, basename='credit')
+routers.register(r'skills', SkillViewSet, basename='skill')
+routers.register(r'educations', EducationViewSet, basename='education')
+routers.register(r'experiences', ExperienceViewSet, basename='experience')
+routers.register(r'profiles', ProfileViewSet, basename='profile')
 
 urlpatterns = [
     re_path(r"^auth/jwt/create/?", TokenObtainPairView.as_view(), name="jwt-create"),

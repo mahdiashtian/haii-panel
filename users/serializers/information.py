@@ -1,26 +1,37 @@
 from rest_framework import serializers
 
-from users.exception import CreditAmountMustBePositive, CreditNotEnough
+from users.exception import CreditAmountMustBePositive, CreditNotEnough, MaximumSkill
 from users.models import Skill, Education, Experience, TeamUser, TransactionHistory
 from users.serializers import UserSerializer
 
 
 class SkillSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        user = self.context["request"].user
+        skills = user.profile_user.skill_profile.count()
+        method = self.context['request'].method
+        if method == 'POST' and skills >= 3:
+            raise MaximumSkill
+        return attrs
+
     class Meta:
         model = Skill
-        fields = '__all__'
-
-
-class EducationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Education
-        fields = '__all__'
+        exclude = ('profile',)
+        read_only_fields = ('id',)
 
 
 class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
-        fields = '__all__'
+        exclude = ('profile',)
+        read_only_fields = ('id',)
+
+
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        exclude = ('profile',)
+        read_only_fields = ('id',)
 
 
 class TeamUserSerializer(serializers.ModelSerializer):
