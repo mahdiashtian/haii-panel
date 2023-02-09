@@ -152,9 +152,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
     'PAGE_SIZE': 11,
 
 }
@@ -189,3 +189,7 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+SMS_USERNAME = config('SMS_USERNAME')
+SMS_PASSWORD = config('SMS_PASSWORD')
+SMS_FROM = config('SMS_FROM')
