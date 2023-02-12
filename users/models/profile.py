@@ -16,7 +16,6 @@ class ID(models.Model):
 
 class Child(ID):
     # profile_child :Inversely related to 'Child' from 'Profile'
-
     image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر شناسنامه')
 
     class Meta:
@@ -31,7 +30,7 @@ class Profile(ID):
     # experience_profile :Inversely related to 'Profile' from 'Experience'
     # team_user_profile :Inversely related to 'Profile' from 'TeamUser'
     # iranian_profile :Inversely related to 'Profile' from 'ProfileIranian'
-    # foreign_profile :Inversely related to 'Profile' from 'ProfileForeign'
+    # foreigner_profile :Inversely related to 'Profile' from 'ProfileForeign'
 
     class GenderChoices(models.TextChoices):
         MAN = 'M', ('مرد')
@@ -46,12 +45,12 @@ class Profile(ID):
         pending = 'P', ('در انتظار تایید')
         rejected = 'R', ('رد شده')
 
-    role = models.CharField(max_length=256, verbose_name='نقش کاربر')
-    image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر پروفایل')
+    role = models.CharField(max_length=256, verbose_name='نقش کاربر', null=True, blank=True)
+    image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر پروفایل', null=True, blank=True)
     is_confirmed = models.CharField(max_length=1, choices=Condition.choices, default=Condition.pending,
-                                    verbose_name="تایید/عدم تایید حساب کاربری")
-    country = models.CharField(max_length=4, choices=get_country_list(), verbose_name="کشور")
-    date_of_birth = models.DateField(verbose_name="تاریخ تولد")
+                                    verbose_name="تایید/عدم تایید حساب کاربری", null=True, blank=True)
+    country = models.CharField(max_length=4, choices=get_country_list(), verbose_name="کشور", null=True, blank=True)
+    date_of_birth = models.DateField(verbose_name="تاریخ تولد", null=True, blank=True)
     child = models.ManyToManyField(Child, related_name='profile_child', blank=True, verbose_name='کودکان')
     phone_number = models.CharField(max_length=13,
                                     validators=[
@@ -61,16 +60,19 @@ class Profile(ID):
                                             code='invalid_phone_number')
                                     ],
                                     verbose_name="شماره تلفن"
-                                    )
-    phone_verified = models.BooleanField(default=False, verbose_name="تایید/عدم تایید شماره تلفن")
-    state = models.CharField(max_length=50, verbose_name="استان")
-    city = models.CharField(max_length=50, verbose_name='نام شهر')
-    address = models.CharField(max_length=150, verbose_name="آدرس")
-    gender = models.CharField(max_length=25, choices=GenderChoices.choices, verbose_name='جنسیت')
-    marital_status = models.CharField(max_length=25, choices=MaritalStatusChoices.choices, verbose_name='وضعیت تاهل')
-    first_name = models.CharField(_("first name"), max_length=150)
-    last_name = models.CharField(_("last name"), max_length=150)
-    user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='profile_user', verbose_name='کاربر')
+                                    , null=True, blank=True)
+    phone_verified = models.BooleanField(default=False, verbose_name="تایید/عدم تایید شماره تلفن", null=True,
+                                         blank=True)
+    state = models.CharField(max_length=50, verbose_name="استان", null=True, blank=True)
+    city = models.CharField(max_length=50, verbose_name='نام شهر', null=True, blank=True)
+    address = models.CharField(max_length=150, verbose_name="آدرس", null=True, blank=True)
+    gender = models.CharField(max_length=25, choices=GenderChoices.choices, verbose_name='جنسیت', null=True, blank=True)
+    marital_status = models.CharField(max_length=25, choices=MaritalStatusChoices.choices, verbose_name='وضعیت تاهل',
+                                      null=True, blank=True)
+    first_name = models.CharField(_("first name"), max_length=150, null=True, blank=True)
+    last_name = models.CharField(_("last name"), max_length=150, null=True, blank=True)
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='profile_user',
+                                verbose_name='کاربر', null=True, blank=True)
 
     def get_full_name(self):
         full_name = "%s %s" % (self.first_name, self.last_name)

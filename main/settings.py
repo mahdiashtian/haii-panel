@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'corsheaders',
+    'django_user_agents',
 
     'users',
     'teams',
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 ROOT_URLCONF = 'main.urls'
@@ -155,6 +157,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '3/hour',
+    },
     'PAGE_SIZE': 11,
 
 }
@@ -193,3 +198,14 @@ CORS_ALLOW_CREDENTIALS = True
 SMS_USERNAME = config('SMS_USERNAME')
 SMS_PASSWORD = config('SMS_PASSWORD')
 SMS_FROM = config('SMS_FROM')
+
+CACHE_TTL = 60 * 60
+CACHE_TTL_CODE = 60 * 2
+
+CACHES = {
+    'default': {
+        'BACKEND': config('CACHE_BACKEND'),
+        'LOCATION': config('CACHE_LOCATION'),
+    }
+}
+USER_AGENTS_CACHE = 'default'

@@ -18,7 +18,9 @@ class IsSuperUserOrReadOnly(permissions.BasePermission):
 
 class IsCurrentUser(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return bool(request.user.profile_user == obj.profile)
+        if hasattr(obj, 'profile'):
+            return bool(request.user.profile == obj.profile)
+        return bool(request.user.profile_user == obj)
 
 
 class UserHasProfile(permissions.BasePermission):
