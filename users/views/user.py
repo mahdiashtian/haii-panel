@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q, Sum
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_excel.mixins import XLSXFileMixin
+from drf_excel.renderers import XLSXRenderer
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -13,7 +15,8 @@ from rest_framework.views import APIView
 
 from main.permissions import IsSuperUser
 from users.models import TransactionHistory
-from users.serializers import CheckDestinationAccountSerializer, SendCreditSerializer, TransactionHistorySerializer
+from users.serializers import CheckDestinationAccountSerializer, SendCreditSerializer, TransactionHistorySerializer, \
+    UserListSerializer
 
 User = get_user_model()
 
@@ -114,3 +117,20 @@ class IncreaseCreditCardNumberVS(viewsets.ModelViewSet):
             'count_all': count_all,
 
         })
+
+
+class UserListView(XLSXFileMixin, viewsets.ModelViewSet):
+    queryset = User.objects.filter(profile_user__isnull=False).all()
+    serializer_class = UserListSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['first_name', 'last_name', 'username']
+    pagination_class = PageNumberPagination
+    permission_classes = [IsSuperUser]
+
+    @action(detail=False, methods=['post'],renderer_classes=(XLSXRenderer,))
+    def excel(self, request, *args, **kwargs):
+        filename = 'my_export.xlsx'
+
+        serializer = UserListSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data)

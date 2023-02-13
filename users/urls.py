@@ -28,7 +28,7 @@ urlpatterns = [
          name='credit-card-number-show'),
 
     path('profile/', ProfileList.as_view()),
-    path('profile/<uuid:pk>/', ProfileRetrieveUpdate.as_view()),
+    path('profile/<uuid:pk>/', ProfileRetrieveUpdate.as_view(), name='profile-detail'),
     path('profile/me/', ProfileRetrieveUpdateMe.as_view()),
     path('change-password/', ChangePasswordView.as_view()),
     path('confirm-profile/', ConfirmProfileAPIView.as_view()),
