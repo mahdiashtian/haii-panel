@@ -74,3 +74,9 @@ class SerializersException(APIException):
     status_code = 400
     default_detail = 'اطلاعات ارسالی نامعتبر است'
     default_code = 'invalid'
+
+
+class QueryException(APIException):
+    status_code = 400
+    default_detail = 'اطلاعات ارسالی نامعتبر است'
+    default_code = 'invalid'
