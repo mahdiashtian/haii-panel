@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from foods.serializer import PaymentFoodSerializer
 from users.exception import UserDoesNotExist, CreditAmountMustBePositive, CreditNotEnough, SelfCredit
-from users.serializers import ProfileSerializer
 
 User = get_user_model()
 
@@ -46,27 +44,20 @@ class SendCreditSerializer(serializers.Serializer):
             raise CreditNotEnough
         return value
 
-
-class UserListSerializer(serializers.ModelSerializer):
-    profile_user = serializers.SerializerMethodField()
-    payment_food_user = serializers.SerializerMethodField()
-    url_profile = serializers.HyperlinkedIdentityField(view_name='profile-detail', lookup_field='profile__id')
-
-    def get_profile_user(self, obj):
-        serializer_class = ProfileSerializer
-        serializer_class.Meta.fields = ['id', 'first_name', 'last_name', 'phone_number', 'iranian_profile',
-                                        'foreigner_profile']
-        return serializer_class(obj.profile).data
-
-    def get_payment_food_user(self, obj):
-        serializer_class = PaymentFoodSerializer
-        serializer_class.Meta.fields = ['bills']
-        return serializer_class(obj.profile).data
-
-    class Meta:
-        model = User
-        fields = "__all__"
-
-
-class ExportExcelSerializer(serializers.Serializer):
-    option = serializers.MultipleChoiceField(choices=['profile', 'skills', 'education', 'experience'])
+# class UserListSerializer(serializers.ModelSerializer):
+#     profile_user = serializers.SerializerMethodField()
+#     payment_food_user = serializers.SerializerMethodField()
+#     url_profile = serializers.HyperlinkedIdentityField(view_name='profile-detail', lookup_field='profile__id')
+#
+#     def get_profile_user(self, obj):
+#         serializer_class = ProfileSerializer
+#         return serializer_class(obj.profile).data
+#
+#     def get_payment_food_user(self, obj):
+#         serializer_class = PaymentFoodSerializer
+#         serializer_class.Meta.fields = ['bills']
+#         return serializer_class(obj.profile).data
+#
+#     class Meta:
+#         model = User
+#         fields = "__all__"

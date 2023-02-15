@@ -5,7 +5,7 @@ from rest_framework_simplejwt.views import TokenVerifyView
 from users.views import TokenObtainPairView, TokenRefreshView, CheckDestinationAccountAV, SendCreditAV, \
     IncreaseCreditCardNumberVS, CreditCardNumberShowAP, TokenBlacklistView, SkillViewSet, ExperienceViewSet, \
     EducationViewSet, ChangePasswordView, ConfirmProfileAPIView, PhoneSubmitView, PhoneVerifyView, ProfileList, \
-    ProfileRetrieveUpdate, ProfileRetrieveUpdateMe
+    ProfileRetrieveUpdate, ProfileRetrieveUpdateMe,ProfileListExcel
 
 app_name = 'users'
 
@@ -14,6 +14,7 @@ routers.register(r'increase-credit-card-number', IncreaseCreditCardNumberVS, bas
 routers.register(r'skills', SkillViewSet, basename='skill')
 routers.register(r'educations', EducationViewSet, basename='education')
 routers.register(r'experiences', ExperienceViewSet, basename='experience')
+
 
 urlpatterns = [
     re_path(r"^auth/jwt/create/?", TokenObtainPairView.as_view(), name="jwt-create"),
@@ -28,6 +29,7 @@ urlpatterns = [
          name='credit-card-number-show'),
 
     path('profile/', ProfileList.as_view()),
+    path('profile-excel/', ProfileListExcel.as_view()),
     path('profile/<uuid:pk>/', ProfileRetrieveUpdate.as_view(), name='profile-detail'),
     path('profile/me/', ProfileRetrieveUpdateMe.as_view()),
     path('change-password/', ChangePasswordView.as_view()),

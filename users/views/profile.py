@@ -1,6 +1,8 @@
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, status
+from drf_excel.renderers import XLSXRenderer
+from rest_framework import generics
+from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import UpdateAPIView, ListCreateAPIView
 from rest_framework.response import Response
@@ -9,6 +11,7 @@ from main.melipayamak import Api
 from main.permissions import IsSuperUser, IsCurrentUser
 from users.exception import PasswordInvalid
 from users.models import Profile
+from users.renderer import ExcelRenderer
 from users.serializers import ProfileSerializer, ConfirmProfileSerializer, ChangePasswordSerializer
 
 username = settings.SMS_USERNAME
@@ -22,6 +25,36 @@ class ProfileList(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsSuperUser]
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class ProfileListExcel(generics.ListAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [IsSuperUser]
+    renderer_classes = [ExcelRenderer]
+
+    def get_queryset(self):
+        queryset = self.queryset
+        queryparams = self.request.query_params
+        if queryparams:
+            skill = queryparams.get('skill', None)
+            education = queryparams.get('education', None)
+            experience = queryparams.get('experience', None)
+            query_dict = {"skill_profile": skill, "education_profile": education, "experience_profile": experience}
+            fields = [
+                'id', 'first_name', 'last_name', 'marital_status', 'gender', 'address', 'city', 'state',
+                'phone_verified', 'phone_number', 'child', 'date_of_birth', 'country', 'is_confirmed', 'image', 'role',
+                'iranian_profile', 'foreigner_profile'
+            ]
+            for key, value in query_dict.items():
+                if value:
+                    fields.append(key)
+
+            return queryset.defer(*fields)
+        return super().get_queryset()
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
