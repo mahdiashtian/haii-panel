@@ -1,5 +1,5 @@
-from datetime import datetime
 import os
+from datetime import datetime
 
 import openpyxl
 from django.utils.crypto import get_random_string
@@ -178,48 +178,52 @@ def convert_to_excel(data):
         sheet.cell(row=i + row, column=9, value=item['marital_status'])
         if item.get("child"):
             sheet.cell(row=i + row, column=10, value=len(item['child']))
-
+        else:
+            sheet.cell(row=i + row, column=10, value=0)
         # set last education
-        item['education_profile'] = item['education_profile'][-1]
+        if item.get("education_profile", None):
+            item['education_profile'] = item['education_profile'][-1]
 
-        # create match and case for education
-        if item['education_profile']['grade'] == 'CY':
-            item['education_profile']['grade'] = 'سیکل'
-        elif item['education_profile']['grade'] == 'DI':
-            item['education_profile']['grade'] = 'دیپلم'
-        elif item['education_profile']['grade'] == 'MA':
-            item['education_profile']['grade'] = 'کارشناسی'
-        elif item['education_profile']['grade'] == 'MP':
-            item['education_profile']['grade'] = 'کارشناسی ارشد'
-        elif item['education_profile']['grade'] == 'DA':
-            item['education_profile']['grade'] = 'دکتری'
+            # create match and case for education
+            if item['education_profile']['grade'] == 'CY':
+                item['education_profile']['grade'] = 'سیکل'
+            elif item['education_profile']['grade'] == 'DI':
+                item['education_profile']['grade'] = 'دیپلم'
+            elif item['education_profile']['grade'] == 'MA':
+                item['education_profile']['grade'] = 'کارشناسی'
+            elif item['education_profile']['grade'] == 'MP':
+                item['education_profile']['grade'] = 'کارشناسی ارشد'
+            elif item['education_profile']['grade'] == 'DA':
+                item['education_profile']['grade'] = 'دکتری'
 
-        sheet.cell(row=i + row, column=11, value=item['education_profile']['major'])
-        sheet.cell(row=i + row, column=12, value=item['education_profile']['grade'])
-        sheet.cell(row=i + row, column=13, value=item['education_profile']['name'])
-        #
+            sheet.cell(row=i + row, column=11, value=item['education_profile']['major'])
+            sheet.cell(row=i + row, column=12, value=item['education_profile']['grade'])
+            sheet.cell(row=i + row, column=13, value=item['education_profile']['name'])
+
         # sheet.cell(row=i + row, column=14, value=item['team_name'])
         # sheet.cell(row=i + row, column=15, value=item['activity_sections'])
         # sheet.cell(row=i + row, column=6, value=item['team_manager'])
         #
 
-        name = [i['name'] for i in item['experience_profile']]
-        company = [i['company'] for i in item['experience_profile']]
+        if item.get("experience_profile",None):
+            name = [i['name'] for i in item['experience_profile']]
+            company = [i['company'] for i in item['experience_profile']]
 
-        time = [str((datetime.strptime(i['stop'], '%Y-%m-%d') - datetime.strptime(i['start'], '%Y-%m-%d')).days) for i in
-                item['experience_profile']]
-        time = []
+            time = [str((datetime.strptime(i['stop'], '%Y-%m-%d') - datetime.strptime(i['start'], '%Y-%m-%d')).days) for i
+                    in
+                    item['experience_profile']]
+            time = []
 
-        for work in item['experience_profile']:
-            time_work = (datetime.strptime(work['stop'], '%Y-%m-%d') - datetime.strptime(work['start'], '%Y-%m-%d'))
-            days = time_work.days
-            years, days = divmod(days, 365)
-            months, days = divmod(days, 30)
-            time.append(f"{years} سال و {months} ماه و {days} روز")
+            for work in item['experience_profile']:
+                time_work = (datetime.strptime(work['stop'], '%Y-%m-%d') - datetime.strptime(work['start'], '%Y-%m-%d'))
+                days = time_work.days
+                years, days = divmod(days, 365)
+                months, days = divmod(days, 30)
+                time.append(f"{years} سال و {months} ماه و {days} روز")
 
-        sheet.cell(row=i + row, column=17, value="\n".join(name))
-        sheet.cell(row=i + row, column=18, value="\n".join(company))
-        sheet.cell(row=i + row, column=19, value="\n".join(time))
+            sheet.cell(row=i + row, column=17, value="\n".join(name))
+            sheet.cell(row=i + row, column=18, value="\n".join(company))
+            sheet.cell(row=i + row, column=19, value="\n".join(time))
 
     # Save the workbook
     path = os.path.dirname(os.path.abspath(__file__))

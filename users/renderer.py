@@ -8,6 +8,8 @@ class ExcelRenderer(renderers.BaseRenderer):
     format = 'xlsx'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
+        if isinstance(data, dict):
+            return
         path = convert_to_excel(data)
         file = open(path, 'rb')
         return file.read()

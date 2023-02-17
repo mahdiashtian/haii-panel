@@ -44,6 +44,25 @@ class ProfileSerializer(WritableNestedModelSerializer):
     experience_profile = ExperienceSerializer(many=True, read_only=True)
     user = UserSerializer()
 
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)
+        ex = kwargs.pop('ex', None)
+        # Instantiate the superclass normally
+        super().__init__(*args, **kwargs)
+
+        if fields and ex is not None:
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+        for field in self.fields:
+            if field not in self.Meta.exempt_fields:
+                self.fields[field].required = True
+
+        super().__init__(*args, **kwargs)
+
     def update(self, instance, validated_data):
         user = self.context['request'].user
         if user.is_superuser:
@@ -65,13 +84,6 @@ class ProfileSerializer(WritableNestedModelSerializer):
                 instance.phone_verified = False
 
         return super().update(instance, validated_data)
-
-    def __init__(self, *args, **kwargs):
-        for field in self.fields:
-            if field not in self.Meta.exempt_fields:
-                self.fields[field].required = True
-
-        super().__init__(*args, **kwargs)
 
     def to_internal_value(self, data):
         data = data.copy()

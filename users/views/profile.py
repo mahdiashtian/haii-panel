@@ -1,6 +1,5 @@
 from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_excel.renderers import XLSXRenderer
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.filters import SearchFilter
@@ -25,6 +24,8 @@ class ProfileList(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsSuperUser]
+    filter_backends = [SearchFilter]
+    search_fields = ['first_name', 'last_name']
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -36,28 +37,33 @@ class ProfileListExcel(generics.ListAPIView):
     permission_classes = [IsSuperUser]
     renderer_classes = [ExcelRenderer]
 
-    def get_queryset(self):
-        queryset = self.queryset
-        queryparams = self.request.query_params
-        if queryparams:
-            skill = queryparams.get('skill', None)
-            education = queryparams.get('education', None)
-            experience = queryparams.get('experience', None)
-            query_dict = {"skill_profile": skill, "education_profile": education, "experience_profile": experience}
-            fields = [
-                'id', 'first_name', 'last_name', 'marital_status', 'gender', 'address', 'city', 'state',
-                'phone_verified', 'phone_number', 'child', 'date_of_birth', 'country', 'is_confirmed', 'image', 'role',
-                'iranian_profile', 'foreigner_profile'
-            ]
-            for key, value in query_dict.items():
-                if value:
-                    fields.append(key)
-
-            return queryset.defer(*fields)
-        return super().get_queryset()
-
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        fields = [
+            'id', 'first_name', 'last_name', 'marital_status', 'gender', 'address', 'city', 'state',
+            'phone_verified', 'phone_number', 'child', 'date_of_birth', 'country', 'is_confirmed', 'image', 'role',
+            'iranian_profile', 'foreigner_profile', 'user', 'education_profile', 'experience_profile'
+        ]
+        queryparams = self.request.query_params
+        if queryparams:
+            team = queryparams.get('team', None)
+            education = queryparams.get('education', None)
+            experience = queryparams.get('experience', None)
+            query_dict = {"education_profile": education, "experience_profile": experience}
+
+            for key, value in query_dict.items():
+                if value != "True":
+                    fields.remove(key)
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True, fields=fields, ex=True)
+        return Response(serializer.data)
 
 
 class ProfileRetrieveUpdate(generics.RetrieveUpdateAPIView):
@@ -80,7 +86,7 @@ class ConfirmProfileAPIView(ListCreateAPIView):
     permission_classes = [IsSuperUser]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['gender', 'marital_status', 'is_confirmed']
-    search_fields = ['user__first_name', 'user__last_name', 'phone_number']
+    search_fields = ['first_name', 'last_name', 'phone_number']
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
