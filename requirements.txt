@@ -9,3 +9,8 @@ drf-writable-nested==0.7.0
 django-cors-headers==3.13.0
 zeep==4.2.1
 aiohttp==3.8.3
+django_user_agents==0.10.0
+openpyxl==3.1.1
+persiantools==3.0.1
+psycopg2==2.9.5
+codemelli==0.1.2
