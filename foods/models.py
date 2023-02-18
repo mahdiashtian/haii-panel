@@ -85,21 +85,14 @@ class WeeklyMeal(ID):
     date = models.DateField(verbose_name='تاریخ')
     food = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='غذا',
                              related_name='weekly_meal_food', limit_choices_to={'type': 'FOOD'})
-    desire = models.ForeignKey('foods.FoodAndDesire', on_delete=models.CASCADE, verbose_name='پیش غذا',
-                               related_name='weekly_meal_desire', limit_choices_to={'type': 'DESIRE'}, null=True,
-                               blank=True)
+    desire = models.ManyToManyField('foods.FoodAndDesire', verbose_name='پیش غذا',
+                                    related_name='weekly_meal_desire', limit_choices_to={'type': 'DESIRE'}, null=True,
+                                    blank=True)
     meal = models.CharField(max_length=9, choices=ChoiceMeal.choices, verbose_name='نوع وعده')
     price = models.PositiveBigIntegerField(verbose_name='قیمت', default=0)
 
-    def save(
-            self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
-        if self.food:
-            self.price += self.food.price
-        if self.desire:
-            self.price += self.desire.price
 
-        super().save(force_insert, force_update, using, update_fields)
+
 
     def __str__(self):
         return f'{self.food}:{self.desire} - {self.date} - {self.meal}'
@@ -109,4 +102,4 @@ class WeeklyMeal(ID):
 
     class Meta:
         app_label = 'foods'
-        unique_together = (('food', 'date', 'meal'), ('desire', 'date', 'meal'))
+        unique_together = ('food', 'date', 'meal')

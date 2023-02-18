@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Sum
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -12,7 +13,7 @@ class WeeklyMealSerializer(serializers.ModelSerializer):
         if instance.food:
             result['food'] = FoodAndDesireSerializer(instance.food).data
         if instance.desire:
-            result['desire'] = FoodAndDesireSerializer(instance.desire).data
+            result['desire'] = FoodAndDesireSerializer(instance.desire, many=True).data
         return result
 
     def validate_date(self, value):
@@ -21,6 +22,15 @@ class WeeklyMealSerializer(serializers.ModelSerializer):
         if value < date_reservation:
             raise DateIsPast
         return value
+
+    def save(self, **kwargs):
+        result = super(WeeklyMealSerializer, self).save()
+        if result.food:
+            result.price += result.food.price
+        if result.desire:
+            result.price += result.desire.all().aggregate(Sum('price'))['price__sum']
+        result.save()
+        return result
 
     class Meta:
         model = WeeklyMeal
