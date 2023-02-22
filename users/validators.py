@@ -23,19 +23,19 @@ class ProfileValidator(object):
         iranian = attrs.get('iranian', None)
         foreigner = attrs.get('foreigner', None)
 
-        # if martial_status != 'M' and child:
-        #     raise CannotHaveChild
-        #
-        # if country == 'IR' and not iranian:
-        #     raise NationalityDoseNoteMatch
-        #
-        # if country != 'IR' and not foreigner:
-        #     raise NationalityDoseNoteMatch
-        #
-        # if not foreigner and not iranian:
-        #     raise NationalityDoseNoteMatch
-        #
-        # if foreigner and iranian:
-        #     raise NationalityDoseNoteMatch
+        if martial_status != 'M' and child:
+            raise CannotHaveChild
+
+        if country == 'IR' and not iranian:
+            raise NationalityDoseNoteMatch
+
+        if country != 'IR' and not foreigner:
+            raise NationalityDoseNoteMatch
+
+        if not foreigner and not iranian:
+            raise NationalityDoseNoteMatch
+
+        if foreigner and iranian:
+            raise NationalityDoseNoteMatch
 
         return attrs
