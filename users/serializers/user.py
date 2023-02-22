@@ -7,6 +7,8 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(required=False)
+
     class Meta:
         model = User
         exclude = ['password', 'groups', 'user_permissions', 'date_joined', 'last_login']

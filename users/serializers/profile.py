@@ -12,6 +12,7 @@ MINIMUM_YEAR = settings.MINIMUM_YEAR
 
 
 class IranianSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(required=False)
 
     def validate_national_code(self, value):
         value = str(value)
@@ -24,12 +25,16 @@ class IranianSerializer(serializers.ModelSerializer):
 
 
 class ForeignerSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(required=False)
+
     class Meta:
         model = Foreigner
         exclude = ('profile',)
 
 
 class ChildSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(required=False)
+
     class Meta:
         model = Child
         fields = '__all__'
@@ -110,7 +115,7 @@ class ProfileSerializer(WritableNestedModelSerializer):
             'iranian_profile', 'foreigner_profile', 'skill_profile', 'education_profile', 'experience_profile'
         )
         read_only_fields = ('id', 'is_confirmed', 'phone_verified')
-        exempt_fields = ['child','iranian_profile','foreigner_profile']
+        exempt_fields = ['child', 'iranian_profile', 'foreigner_profile']
 
 
 class ConfirmProfileSerializer(serializers.Serializer):
