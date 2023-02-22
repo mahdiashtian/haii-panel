@@ -20,8 +20,8 @@ class ProfileValidator(object):
         martial_status = attrs.get('marital_status', None)
         child = attrs.get('child', None)
         country = attrs.get('country', None)
-        iranian = attrs.get('iranian', None)
-        foreigner = attrs.get('foreigner', None)
+        iranian = attrs.get('iranian_profile', None)
+        foreigner = attrs.get('foreigner_profile', None)
 
         if martial_status != 'M' and child:
             raise CannotHaveChild
