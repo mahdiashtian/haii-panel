@@ -39,8 +39,8 @@ class ChildSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(WritableNestedModelSerializer):
     child = ChildSerializer(many=True, required=False, allow_null=True)
-    iranian_profile = IranianSerializer(required=False, allow_null=True)
-    foreigner_profile = ForeignerSerializer(required=False, allow_null=True)
+    iranian_profile = IranianSerializer()
+    foreigner_profile = ForeignerSerializer()
     skill_profile = SkillSerializer(many=True, read_only=True)
     education_profile = EducationSerializer(many=True, read_only=True)
     experience_profile = ExperienceSerializer(many=True, read_only=True)
