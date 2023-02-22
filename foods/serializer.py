@@ -27,8 +27,9 @@ class WeeklyMealSerializer(serializers.ModelSerializer):
         result = super(WeeklyMealSerializer, self).save()
         if result.food:
             result.price += result.food.price
-        if result.desire:
-            result.price += result.desire.all().aggregate(Sum('price'))['price__sum']
+        price_desire = result.desire.all().aggregate(Sum('price'))['price__sum']
+        if result.desire and price_desire:
+            result.price += price_desire
         result.save()
         return result
 
