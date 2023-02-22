@@ -20,18 +20,16 @@ class IranianSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Iranian
-        exclude = ('profile',)
+        fields = '__all__'
 
 
 class ForeignerSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Foreigner
-        exclude = ('profile',)
+        fields = '__all__'
 
 
 class ChildSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Child
         fields = '__all__'
@@ -39,12 +37,12 @@ class ChildSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(WritableNestedModelSerializer):
     child = ChildSerializer(many=True, required=False, allow_null=True)
-    iranian_profile = IranianSerializer()
-    foreigner_profile = ForeignerSerializer()
+    iranian_profile = IranianSerializer(required=False)
+    foreigner_profile = ForeignerSerializer(required=False)
     skill_profile = SkillSerializer(many=True, read_only=True)
     education_profile = EducationSerializer(many=True, read_only=True)
     experience_profile = ExperienceSerializer(many=True, read_only=True)
-    user = UserSerializer()
+    user = UserSerializer(required=False)
 
     def __init__(self, *args, **kwargs):
         fields = kwargs.pop('fields', None)
@@ -71,6 +69,17 @@ class ProfileSerializer(WritableNestedModelSerializer):
             instance.is_confirmed = "C"
         else:
             instance.is_confirmed = "P"
+
+        validated_data_dict = dict(validated_data)
+        iranian = getattr(instance, 'iranian_profile', None)
+        foreigner = getattr(instance, 'foreigner_profile', None)
+
+        if iranian and not validated_data_dict.get('iranian_profile_id', None):
+            instance.iranian_profile.delete()
+            instance.iranian_profile = None
+        if foreigner and not validated_data_dict.get('foreigner_profile_id', None):
+            instance.foreigner_profile.delete()
+            instance.foreigner_profile = None
 
         phone_chache = cache.get(f"phone-{str(user.id)}")
         if phone_chache:
@@ -106,7 +115,8 @@ class ProfileSerializer(WritableNestedModelSerializer):
             'iranian_profile', 'foreigner_profile', 'skill_profile', 'education_profile', 'experience_profile'
         )
         read_only_fields = ('id', 'is_confirmed', 'phone_verified')
-        exempt_fields = ['child', 'iranian_profile', 'foreigner_profile']
+        # exempt_fields = ['child', 'iranian_profile', 'foreigner_profile']
+        exempt_fields = ['child', 'user', 'iranian_profile', 'foreigner_profile']
 
 
 class ConfirmProfileSerializer(serializers.Serializer):

@@ -73,6 +73,8 @@ class Profile(ID):
     last_name = models.CharField(_("last name"), max_length=150, null=True, blank=True)
     user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='profile_user',
                                 verbose_name='کاربر', null=True, blank=True)
+    iranian_profile = models.OneToOneField('users.Iranian', on_delete=models.SET_NULL, null=True, blank=True)
+    foreigner_profile = models.OneToOneField('users.Foreigner', on_delete=models.SET_NULL, null=True, blank=True)
 
     def get_full_name(self):
         full_name = "%s %s" % (self.first_name, self.last_name)
@@ -92,8 +94,9 @@ class Iranian(ID):
     national_code = models.CharField(max_length=10, verbose_name="کد ملی")
     national_card_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر کارت ملی")
     birth_certificate_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر شناسنامه")
-    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='iranian_profile',
-                                   verbose_name='پروفایل')
+
+    # profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='iranian_profile',
+    #                                verbose_name='پروفایل')
 
     class Meta:
         app_label = 'users'
@@ -102,8 +105,9 @@ class Iranian(ID):
 class Foreigner(ID):
     passport_image = models.ImageField(upload_to=upload_image_path, verbose_name="تصویر پاسپورت")
     exclusive_code = models.CharField(max_length=12, verbose_name='کد اختصاصی')
-    profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='foreigner_profile',
-                                   verbose_name='پروفایل', )
+
+    # profile = models.OneToOneField("users.Profile", on_delete=models.CASCADE, related_name='foreigner_profile',
+    #                                verbose_name='پروفایل', )
 
     class Meta:
         app_label = 'users'
