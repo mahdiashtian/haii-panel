@@ -12,7 +12,6 @@ MINIMUM_YEAR = settings.MINIMUM_YEAR
 
 
 class IranianSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(required=False)
 
     def validate_national_code(self, value):
         value = str(value)
@@ -25,7 +24,6 @@ class IranianSerializer(serializers.ModelSerializer):
 
 
 class ForeignerSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(required=False)
 
     class Meta:
         model = Foreigner
@@ -33,7 +31,6 @@ class ForeignerSerializer(serializers.ModelSerializer):
 
 
 class ChildSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(required=False)
 
     class Meta:
         model = Child

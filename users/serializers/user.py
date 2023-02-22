@@ -7,7 +7,6 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(required=False)
 
     class Meta:
         model = User
