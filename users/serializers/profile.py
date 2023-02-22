@@ -87,12 +87,6 @@ class ProfileSerializer(WritableNestedModelSerializer):
 
         return super().update(instance, validated_data)
 
-    def to_internal_value(self, data):
-        data = data.copy()
-        if data.get('user', None):
-            data['user']['id'] = self.context['request'].user.id
-        return super().to_internal_value(data)
-
     def validate(self, attrs):
         validator = ProfileValidator()
         return validator.validate(attrs, self.context['request'])

@@ -8,6 +8,11 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
 
+    def to_internal_value(self, data):
+        data['id'] = self.context['request'].user.id
+
+        return super().to_internal_value(data)
+
     class Meta:
         model = User
         exclude = ['password', 'groups', 'user_permissions', 'date_joined', 'last_login']
