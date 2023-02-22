@@ -110,7 +110,7 @@ class ProfileSerializer(WritableNestedModelSerializer):
             'iranian_profile', 'foreigner_profile', 'skill_profile', 'education_profile', 'experience_profile'
         )
         read_only_fields = ('id', 'is_confirmed', 'phone_verified')
-        exempt_fields = ['child']
+        exempt_fields = ['child','iranian_profile','foreigner_profile']
 
 
 class ConfirmProfileSerializer(serializers.Serializer):
