@@ -4,6 +4,7 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import UpdateAPIView, ListCreateAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from main.melipayamak import Api
@@ -23,7 +24,7 @@ sms = api.sms()
 class ProfileList(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAuthenticated & IsSuperUser]
     filter_backends = [SearchFilter]
     search_fields = ['first_name', 'last_name']
 
@@ -34,7 +35,7 @@ class ProfileList(generics.ListAPIView):
 class ProfileListExcel(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAuthenticated & IsSuperUser]
     renderer_classes = [ExcelRenderer]
 
     def get(self, request, *args, **kwargs):
@@ -69,13 +70,13 @@ class ProfileListExcel(generics.ListAPIView):
 class ProfileRetrieveUpdate(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsCurrentUser | IsSuperUser]
+    permission_classes = [IsAuthenticated & (IsCurrentUser | IsSuperUser)]
 
 
 class ProfileRetrieveUpdateMe(ProfileRetrieveUpdate):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsCurrentUser | IsSuperUser]
+    permission_classes = [IsAuthenticated & (IsCurrentUser | IsSuperUser)]
 
     def get_object(self):
         return self.queryset.get(user__id=self.request.user.id)
@@ -83,7 +84,7 @@ class ProfileRetrieveUpdateMe(ProfileRetrieveUpdate):
 
 class ConfirmProfileAPIView(ListCreateAPIView):
     queryset = Profile.objects.all()
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsAuthenticated & IsSuperUser]
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['gender', 'marital_status', 'is_confirmed']
     search_fields = ['first_name', 'last_name', 'phone_number']
@@ -113,7 +114,7 @@ class ConfirmProfileAPIView(ListCreateAPIView):
 
 class ChangePasswordView(UpdateAPIView):
     serializer_class = ChangePasswordSerializer
-    permission_classes = [IsCurrentUser]
+    permission_classes = [IsAuthenticated & IsCurrentUser]
 
     def get_object(self, queryset=None):
         obj = self.request.user
