@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -14,12 +15,8 @@ class ID(models.Model):
         abstract = True
 
 
-class Child(ID):
-    # profile_child :Inversely related to 'Child' from 'Profile'
-    image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر شناسنامه')
-
-    class Meta:
-        app_label = 'users'
+class Children(ID):
+    identification = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر کارت ملی')
 
 
 class Profile(ID):
@@ -51,7 +48,6 @@ class Profile(ID):
                                     verbose_name="تایید/عدم تایید حساب کاربری", null=True, blank=True)
     country = models.CharField(max_length=4, choices=get_country_list(), verbose_name="کشور", null=True, blank=True)
     date_of_birth = models.DateField(verbose_name="تاریخ تولد", null=True, blank=True)
-    child = models.ManyToManyField(Child, related_name='profile_child', blank=True, verbose_name='کودکان')
     phone_number = models.CharField(max_length=13,
                                     validators=[
                                         RegexValidator(
@@ -75,6 +71,8 @@ class Profile(ID):
                                 verbose_name='کاربر', null=True, blank=True)
     iranian_profile = models.OneToOneField('users.Iranian', on_delete=models.SET_NULL, null=True, blank=True)
     foreigner_profile = models.OneToOneField('users.Foreigner', on_delete=models.SET_NULL, null=True, blank=True)
+    childs = models.ManyToManyField(Children, verbose_name='فرزندان', null=True, blank=True)
+
 
     def get_full_name(self):
         full_name = "%s %s" % (self.first_name, self.last_name)

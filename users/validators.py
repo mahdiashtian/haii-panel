@@ -1,7 +1,7 @@
 from codemelli import validator
 from django.conf import settings
 
-from users.exception import CannotHaveChild, NationalityDoseNoteMatch, NationalCodeInvalid
+from users.exception import NationalCodeInvalid, CannotHaveChild, NationalityDoseNoteMatch
 
 MINIMUM_YEAR = settings.MINIMUM_YEAR
 
@@ -16,7 +16,7 @@ class CodeMelliValidator(object):
 
 class ProfileValidator(object):
 
-    def validate(self, attrs,request, **kwargs):
+    def validate(self, attrs, request, **kwargs):
         martial_status = attrs.get('marital_status', None)
         child = attrs.get('child', None)
         country = attrs.get('country', None)

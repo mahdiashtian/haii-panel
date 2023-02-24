@@ -114,20 +114,3 @@ class IncreaseCreditCardNumberVS(viewsets.ModelViewSet):
             'count_all': count_all,
 
         })
-
-
-# class UserListView(XLSXFileMixin, viewsets.ModelViewSet):
-#     queryset = User.objects.filter(profile_user__isnull=False).all()
-#     serializer_class = UserListSerializer
-#     filter_backends = [SearchFilter]
-#     search_fields = ['first_name', 'last_name', 'username']
-#     pagination_class = PageNumberPagination
-#     permission_classes = [IsSuperUser]
-# 
-#     @action(detail=False, methods=['post'],renderer_classes=(XLSXRenderer,))
-#     def excel(self, request, *args, **kwargs):
-#         filename = 'my_export.xlsx'
-#         queryparm =
-#         serializer = UserListSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         return Response(serializer.data)

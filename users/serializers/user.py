@@ -7,11 +7,15 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    def get_fields(self):
+        fields = super().get_fields()
 
-    def to_internal_value(self, data):
-        data['id'] = self.context['request'].user.id
+        fields['username'].required = False
+        fields['is_staff'].read_only = True
+        fields['is_superuser'].read_only = True
+        fields['is_active'].read_only = True
 
-        return super().to_internal_value(data)
+        return fields
 
     class Meta:
         model = User
