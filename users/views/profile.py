@@ -28,6 +28,7 @@ class ProfileList(generics.ListAPIView):
     permission_classes = [IsAuthenticated & (IsCeoOrManager | IsSuperUser)]
     filter_backends = [SearchFilter]
     search_fields = ['first_name', 'last_name']
+    pagination_class = PageNumberPagination
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
