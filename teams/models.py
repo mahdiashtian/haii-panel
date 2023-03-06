@@ -19,12 +19,26 @@ class Team(ID):
     # team_user_team :Inversely related to 'Team' from 'TeamUser'
     # membership_request_team :Inversely related to 'Team' from 'MembershipRequest'
     # member_recruitment_filter_team :Inversely related to 'Team' from 'MemberRecruitmentFilter'
+    class Condition(models.TextChoices):
+        confirmed = 'C', ('تایید شده')
+        pending = 'P', ('در انتظار تایید')
+        rejected = 'R', ('رد شده')
 
     name = models.CharField(max_length=256, verbose_name="نام تیم")
     description = models.TextField(verbose_name="توضیحات")
-    managers = models.ManyToManyField("users.Profile", related_name='team_manager', verbose_name="مدیران تیم")
+    managers = models.ManyToManyField("users.Profile", related_name='team_manager', verbose_name="مدیران تیم",
+                                      limit_choices_to={"team_manager": None}, blank=True
+                                      )
     ceo = models.ForeignKey("users.Profile", on_delete=models.CASCADE, related_name='team_ceo',
-                            verbose_name="مدیر عامل")
+                            verbose_name="مدیر عامل", limit_choices_to={"team_ceo": None},
+                            )
+    create_date = models.DateTimeField(verbose_name="تاریخ ایجاد")
+    image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر تیم')
+    is_confirmed = models.CharField(max_length=1, choices=Condition.choices, default=Condition.pending,
+                                    verbose_name="تایید/عدم تایید ")
+
+    def members(self):
+        return self.team_user_team.all().count()
 
     def __str__(self):
         return self.name
@@ -41,18 +55,14 @@ class Activity(ID):
     name = models.CharField(max_length=256, verbose_name='نام فعالیت')
     description = models.TextField(verbose_name='توضیحات فعالیت')
     image = models.ImageField(upload_to=upload_image_path, verbose_name='تصویر فعالیت')
-    parent = models.ForeignKey("self", on_delete=models.CASCADE, related_name='activity_parent', null=True, blank=True,
-                               verbose_name='ریشه فعالیت')
-    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, null=True, blank=True, related_name='activity_team',
+    child = models.ForeignKey("self", on_delete=models.CASCADE, related_name='activity_parent', null=True, blank=True,
+                              verbose_name='ریشه فعالیت')
+    team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, null=True, blank=True,
+                             related_name='activity_team',
                              verbose_name='تیم مربوطه')
 
     def __str__(self):
         return self.name
-
-    def save(self, *args, **kwargs):
-        if self.parent:
-            self.team = None
-        super().save(*args, **kwargs)
 
     class Meta:
         app_label = 'teams'
@@ -70,20 +80,18 @@ class MemberRecruitmentFilter(ID):
 
     age = ArrayField(models.PositiveSmallIntegerField(validators=[
         MinValueValidator(1),
-        MaxValueValidator(50)]), verbose_name='سن', size=2)
+        MaxValueValidator(50)]), verbose_name='سن', size=2, null=True, blank=True)
     experience = ArrayField(models.PositiveSmallIntegerField(validators=[
         MinValueValidator(1),
-        MaxValueValidator(50)]), verbose_name='سابقه', size=2)
-    gender = models.CharField(max_length=1, choices=GenderChoices.choices, verbose_name='جنسیت')
-    city = models.CharField(max_length=256, verbose_name='شهر')
-    membership_type = models.CharField(max_length=2, choices=MembershipChoices.choices, verbose_name='نوع عضویت')
+        MaxValueValidator(50)]), verbose_name='سابقه', size=2, null=True, blank=True)
+    gender = models.CharField(max_length=1, choices=GenderChoices.choices, verbose_name='جنسیت', null=True, blank=True)
+    city = models.CharField(max_length=256, verbose_name='شهر', null=True, blank=True)
+    membership_type = models.CharField(max_length=2, choices=MembershipChoices.choices, verbose_name='نوع عضویت',
+                                       null=True, blank=True)
     team = models.OneToOneField("teams.Team", on_delete=models.CASCADE, related_name='member_recruitment_filter_team',
                                 verbose_name='تیم مربوطه')
     activity = models.ManyToManyField("teams.Activity", related_name='member_recruitment_filter_activity',
-                                      verbose_name='فعالیت مربوطه')
-
-    def __str__(self):
-        return self.id
+                                      verbose_name='فعالیت مربوطه', blank=True, null=True)
 
     class Meta:
         app_label = 'teams'
@@ -98,6 +106,11 @@ class MembershipRequest(ID):
         PERMANENT = 'PE', ('دائمی')
         FREELANCER = 'FR', ('فریلنسر')
         LEARNER = 'LE', ('کارآموز')
+
+    class Condition(models.TextChoices):
+        confirmed = 'C', ('تایید شده')
+        pending = 'P', ('در انتظار تایید')
+        rejected = 'R', ('رد شده')
 
     full_name = models.CharField(max_length=256, verbose_name='نام و نام خانوادگی')
     phone_number = models.CharField(max_length=13,
@@ -117,10 +130,11 @@ class MembershipRequest(ID):
     team = models.ForeignKey("teams.Team", on_delete=models.CASCADE, related_name='membership_request_team',
                              verbose_name='تیم مربوطه')
     cv = models.FileField(upload_to=upload_image_path, verbose_name='رزومه')
-    status = models.BooleanField(default=False, verbose_name='رد/تایید شده')
+    is_confirmed = models.CharField(max_length=1, choices=Condition.choices, default=Condition.pending,
+                                    verbose_name="تایید/عدم تایید", null=True, blank=True)
     description = models.TextField(verbose_name='توضیحات')
     activity = models.ManyToManyField("teams.Activity", related_name='membership_request_activity',
-                                      verbose_name='بخش های فعالیت')
+                                      verbose_name='بخش های فعالیت',blank=True)
 
     def __str__(self):
         return self.full_name

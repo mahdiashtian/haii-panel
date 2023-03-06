@@ -52,7 +52,7 @@ class AgeIsYounger(APIException):
     default_code = 'invalid'
 
 
-class PasswordInvalid(APIException):
+class IncorrectPasswordError(APIException):
     status_code = 400
     default_detail = 'رمز عبور نامعتبر می باشد.'
     default_code = 'invalid'
@@ -79,4 +79,10 @@ class SerializersException(APIException):
 class QueryException(APIException):
     status_code = 400
     default_detail = 'اطلاعات ارسالی نامعتبر است'
+    default_code = 'invalid'
+
+
+class CityDoesNotExist(APIException):
+    status_code = 400
+    default_detail = 'اطلاعات محل سکونت صحیح نیست.'
     default_code = 'invalid'

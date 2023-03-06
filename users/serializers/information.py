@@ -20,6 +20,12 @@ class SkillSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
+class TeamUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TeamUser
+        fields = '__all__'
+
+
 class ExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience

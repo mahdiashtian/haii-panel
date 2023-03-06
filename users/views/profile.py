@@ -4,12 +4,13 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import UpdateAPIView, ListCreateAPIView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from main.melipayamak import Api
-from main.permissions import IsSuperUser, IsCurrentUser
-from users.exception import PasswordInvalid
+from main.permissions import IsSuperUser, IsCurrentUser, IsCeoOrManager
+from users.exception import IncorrectPasswordError
 from users.models import Profile
 from users.renderer import ExcelRenderer
 from users.serializers import ProfileSerializer, ConfirmProfileSerializer, ChangePasswordSerializer
@@ -24,12 +25,19 @@ sms = api.sms()
 class ProfileList(generics.ListAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated & IsSuperUser]
+    permission_classes = [IsAuthenticated & (IsCeoOrManager | IsSuperUser)]
     filter_backends = [SearchFilter]
     search_fields = ['first_name', 'last_name']
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if not user.is_superuser:
+            return super().get_queryset()
+        return super().get_queryset().filter(team_user_profile=user.profile_user.team_user_profile)
 
 
 class ProfileListExcel(generics.ListAPIView):
@@ -37,6 +45,7 @@ class ProfileListExcel(generics.ListAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated & IsSuperUser]
     renderer_classes = [ExcelRenderer]
+    pagination_class = PageNumberPagination
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -88,6 +97,7 @@ class ConfirmProfileAPIView(ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['gender', 'marital_status', 'is_confirmed']
     search_fields = ['first_name', 'last_name', 'phone_number']
+    pagination_class = PageNumberPagination
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -126,7 +136,7 @@ class ChangePasswordView(UpdateAPIView):
 
         if serializer.is_valid():
             if not self.object.check_password(serializer.data.get("old_password")):
-                raise PasswordInvalid
+                raise IncorrectPasswordError
             self.object.set_password(serializer.data.get("new_password"))
             self.object.save()
             response = {

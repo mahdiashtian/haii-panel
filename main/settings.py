@@ -93,6 +93,14 @@ DATABASES = {
         'PASSWORD': config('PASSWORD_DB'),
         'HOST': config('HOST_DB'),
         'PORT': config('PORT_DB'),
+    },
+    'test': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('NAME_DB_TEST'),
+        'USER': config('USER_DB_TEST'),
+        'PASSWORD': config('PASSWORD_DB_TEST'),
+        'HOST': config('HOST_DB_TEST'),
+        'PORT': config('PORT_DB_TEST'),
     }
 }
 
@@ -148,14 +156,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'user': '3/hour',

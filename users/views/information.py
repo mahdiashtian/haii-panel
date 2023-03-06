@@ -4,8 +4,8 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from main.permissions import IsSuperUser, IsCurrentUser, UserHasProfile
-from users.models import Skill, Education, Experience
-from users.serializers import SkillSerializer, EducationSerializer, ExperienceSerializer
+from users.models import Skill, Education, Experience, TeamUser
+from users.serializers import SkillSerializer, EducationSerializer, ExperienceSerializer, TeamUserSerializer
 
 User = get_user_model()
 
@@ -33,6 +33,25 @@ class SkillViewSet(BaseViewSet):
 class EducationViewSet(BaseViewSet):
     queryset = Education.objects.all()
     serializer_class = EducationSerializer
+
+
+class TeamUserViewSet(BaseViewSet):
+    queryset = TeamUser.objects.all()
+    serializer_class = TeamUserSerializer
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        instance = super().perform_update(serializer)
+        user.profile_user.is_confirmed = "P"
+        user.profile_user.save()
+        return instance
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        instance = super().perform_create(serializer)
+        user.profile_user.is_confirmed = "P"
+        user.profile_user.save()
+        return instance
 
 
 class ExperienceViewSet(BaseViewSet):

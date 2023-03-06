@@ -62,6 +62,8 @@ class WeeklyMealViewSet(viewsets.ModelViewSet):
 
 
 class WeeklyMealUserViewSet(viewsets.ModelViewSet):
+    #TODO: تا 50 هزار تومان به صورت قرضی بشود از پنل خریداری کنه
+    #TODO: دوتا وعده غذایی نتونه داشته باشه
     queryset = WeeklyMealUser.objects.all()
     serializer_class = WeeklyMealUserSerializer
     filter_backends = [DjangoFilterBackend]
@@ -99,7 +101,7 @@ class WeeklyMealUserViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             self.perform_create(serializer)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors[2], status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors[0], status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'])
     def bulk_delete(self, request, *args, **kwargs):

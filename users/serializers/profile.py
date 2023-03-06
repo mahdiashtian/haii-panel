@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.core.cache import cache
+from django.utils.functional import cached_property
 from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 
@@ -11,6 +12,78 @@ from users.serializers import SkillSerializer, EducationSerializer, ExperienceSe
 from users.validators import CodeMelliValidator, ProfileValidator
 
 MINIMUM_YEAR = settings.MINIMUM_YEAR
+
+
+class DynamicFieldsMixin(object):
+    """
+    A serializer mixin that takes an additional `fields` argument that controls
+    which fields should be displayed.
+    """
+
+    @cached_property
+    def fields(self):
+        """
+        Filters the fields according to the `fields` query parameter.
+
+        A blank `fields` parameter (?fields) will remove all fields. Not
+        passing `fields` will pass all fields individual fields are comma
+        separated (?fields=id,name,url,email).
+
+        """
+        fields = super(DynamicFieldsMixin, self).fields
+
+        if not hasattr(self, "_context"):
+            # We are being called before a request cycle
+            return fields
+
+        # Only filter if this is the root serializer, or if the parent is the
+        # root serializer with many=True
+        is_root = self.root == self
+        parent_is_list_root = self.parent == self.root and getattr(
+            self.parent, "many", False
+        )
+        if not (is_root or parent_is_list_root):
+            return fields
+
+        try:
+            request = self.context["request"]
+
+        except KeyError:
+            conf = getattr(settings, "DRF_DYNAMIC_FIELDS", {})
+            if not conf.get("SUPPRESS_CONTEXT_WARNING", False) is True:
+                warnings.warn(
+                    "Context does not have access to request. "
+                    "See README for more information."
+                )
+            return fields
+
+        # NOTE: drf test framework builds a request object where the query
+        # parameters are found under the GET attribute.
+        params = getattr(self, "params", None)
+        if params:
+
+            try:
+                filter_fields = params.get("fields", None)
+            except AttributeError:
+                filter_fields = None
+
+            try:
+                omit_fields = params.get("omit", None)
+            except AttributeError:
+                omit_fields = []
+
+            existing = set(fields.keys())
+            if filter_fields is None:
+                allowed = existing
+            else:
+                allowed = set(filter(None, filter_fields))
+
+            for field in existing:
+
+                if field not in allowed:
+                    fields.pop(field, None)
+
+        return fields
 
 
 class IranianSerializer(serializers.ModelSerializer):
@@ -42,7 +115,7 @@ class ChildrenSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProfileSerializer(WritableNestedModelSerializer):
+class ProfileSerializer(DynamicFieldsMixin, WritableNestedModelSerializer):
     iranian_profile = IranianSerializer(required=False)
     foreigner_profile = ForeignerSerializer(required=False)
     childs = ChildrenSerializer(many=True, required=False)
@@ -77,9 +150,8 @@ class ProfileSerializer(WritableNestedModelSerializer):
         if childs:
             for child in childs:
                 if not child.get('id', None):
-                    print("not iud")
                     child['id'] = uuid.uuid4()
-        print(childs)
+
         # add childid in validated data
         user = self.context['request'].user
         if user.is_superuser:
@@ -133,15 +205,16 @@ class ProfileSerializer(WritableNestedModelSerializer):
         model = Profile
         fields = (
             'id', 'first_name', 'last_name', 'user', 'marital_status', 'gender', 'address', 'city', 'state',
-            'phone_verified', 'phone_number', 'childs', 'date_of_birth', 'country', 'is_confirmed', 'image', 'role',
+            'phone_verified', 'phone_number', 'childs', 'date_of_birth', 'country', 'is_confirmed', 'image',
             'iranian_profile', 'foreigner_profile', 'skill_profile', 'education_profile', 'experience_profile',
             'clear_childs'
         )
         read_only_fields = ('id', 'is_confirmed', 'phone_verified')
-        exempt_fields = ['user', 'iranian_profile', 'foreigner_profile','childs']
+        exempt_fields = ['user', 'iranian_profile', 'foreigner_profile', 'childs']
 
 
 class ConfirmProfileSerializer(serializers.Serializer):
+    # TODO: لغو شدن تایید پروفایل بعد از هر تغییر
     profile_ids = serializers.ListField(child=serializers.UUIDField(), required=True, allow_null=False)
     condition = serializers.ChoiceField(choices=Profile.Condition.choices, allow_null=False, required=True)
     reason = serializers.CharField(allow_null=True, required=False)

@@ -66,6 +66,11 @@ class TeamUser(models.Model):
         FREELANCER = 'FR', ('فریلنسر')
         LEARNER = 'LE', ('کارآموز')
 
+    class Condition(models.TextChoices):
+        confirmed = 'C', ('تایید شده')
+        pending = 'P', ('در انتظار تایید')
+        rejected = 'R', ('رد شده')
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     team = models.ForeignKey('teams.Team', on_delete=models.CASCADE, related_name='team_user_team', verbose_name='تیم')
     profile = models.OneToOneField('users.Profile', on_delete=models.CASCADE, related_name='team_user_profile',
